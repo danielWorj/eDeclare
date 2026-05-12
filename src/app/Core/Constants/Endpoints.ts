@@ -32,6 +32,7 @@ export const eHAllSystemEndPoints ={
         Declaration : {
             all : `${acteBaseUrl}/all`,
             allHopital : `${acteBaseUrl}/all/byhopital/`,
+            allParent : `${acteBaseUrl}/all/byparent/`,
             allMairie : `${acteBaseUrl}/all/bymairie/`,
             declare : `${acteBaseUrl}/create`,
             update : `${acteBaseUrl}/update`,
@@ -48,6 +49,10 @@ export const eHAllSystemEndPoints ={
     Utilisateur:{
         Sexe : {
             all : `${userBaseUrl}/sexe/all`
+        },
+        Parent :{
+            all : `${userBaseUrl}/parent/all`,
+            byId : `${userBaseUrl}/parent/byId/`,
         }
     }
 

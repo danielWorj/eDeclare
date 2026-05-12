@@ -15,6 +15,12 @@ export class ActeService {
 
   // ── Déclarations ────────────────────────────────────────────────────────
 
+  getAllDeclarationByParent(id: number): Observable<Declaration[]> {
+    return this.http.get<Declaration[]>(
+      eHAllSystemEndPoints.Acte.Declaration.allParent + id
+    );
+  }
+
   getAllDeclarationByHopital(id: number): Observable<Declaration[]> {
     return this.http.get<Declaration[]>(
       eHAllSystemEndPoints.Acte.Declaration.allHopital + id
