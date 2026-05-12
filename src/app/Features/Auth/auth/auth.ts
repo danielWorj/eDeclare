@@ -37,9 +37,10 @@ export class Auth {
   }
 
   roleRoutes: Record<number, string> = {
-    1: '/mairie/dashboard',
-    2: '/parent/dashboard',
-    3: '/hopital/dashboard',
+    1: '/admin/home',
+    2: '/hopital',
+    3: '/mairie/dashboard',
+    4: '/parent/dashboard',
   };
 
   // ─── Sélection du profil ─────────────────────────────────────────────────────

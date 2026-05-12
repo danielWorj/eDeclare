@@ -1,11 +1,10 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { Etablissement } from '../../Model/Etablissement/Etablissement';
-import { eHAllSystemEndPoints } from '../../Constant/EndPoints';
 import { ServerResponse } from '../../Model/Server/ServerResponse';
 import { Mairie } from '../../Model/Etablissement/Mairie';
 import { Hopital } from '../../Model/Etablissement/Hopital';
+import { eHAllSystemEndPoints } from '../../Constants/Endpoints';
 
 @Injectable({
   providedIn: 'root',

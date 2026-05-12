@@ -1,9 +1,9 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { AuthData } from '../../Model/Auth/AuthData';
-import { eHAllSystemEndPoints } from '../../Constant/EndPoints';
 import { Observable } from 'rxjs';
 import { BasicAuthData } from '../../Model/Auth/BasicAuthData';
+import { eHAllSystemEndPoints } from '../../Constants/Endpoints';
 
 @Injectable({
   providedIn: 'root',

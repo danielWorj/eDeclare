@@ -1,4 +1,4 @@
-import { RoleUser } from "./RoleUser";
+import { RoleUser } from "./Utilisateur";
 
 export interface Parent {
     id : number ;
@@ -10,6 +10,10 @@ export interface Parent {
     creation:string ;
     modification:string ;
     status : boolean ;
+    profession:string ; 
+    domicile : string; 
+    dateNaissance:string; 
+    lieuNaissance:string; 
 
     roleUser:RoleUser ;
     

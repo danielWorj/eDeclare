@@ -1,11 +1,40 @@
-<div class="dash-section">
+<!-- ══════════════════════════════════════════════════════════════════════
+     TOASTS (succès / erreur)
+     ══════════════════════════════════════════════════════════════════════ -->
+<div class="toast-container">
+  @if (successMessage()) {
+    <div class="toast toast--success" role="alert">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <polyline points="20 6 9 17 4 12"/>
+      </svg>
+      <span>{{ successMessage() }}</span>
+    </div>
+  }
+  @if (errorMessage()) {
+    <div class="toast toast--error" role="alert">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <circle cx="12" cy="12" r="10"/>
+        <line x1="12" y1="8" x2="12" y2="12"/>
+        <line x1="12" y1="16" x2="12.01" y2="16"/>
+      </svg>
+      <span>{{ errorMessage() }}</span>
+    </div>
+  }
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     PAGE PRINCIPALE
+     ══════════════════════════════════════════════════════════════════════ -->
+<div class="dash-section" id="section-naissances">
+
+  <!-- En-tête -->
   <div class="page-header">
     <div class="page-header-left">
       <div class="page-eyebrow">État civil</div>
       <h1 class="page-title">Actes de Naissance</h1>
       <div class="page-subtitle">Traitement des déclarations et émission des actes officiels</div>
     </div>
-    <button class="btn-primary-main" (click)="ouvrirModalActe()">
+    <button class="btn-primary-main" (click)="openModalAdd()">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
         <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
       </svg>
@@ -13,46 +42,17 @@
     </button>
   </div>
 
-  <!-- ── Filtres ─────────────────────────────────────────────────────────── -->
+  <!-- ── Barre de recherche ─────────────────────────────────────────────── -->
   <div class="card-panel mb-4">
     <div class="card-panel-body" style="padding:1rem 1.5rem;">
       <div class="filters-row">
-
-        <!-- Recherche : [value] + (input) remplace [(ngModel)] sans FormsModule -->
         <div class="filter-search">
           <input type="text"
                  class="form-control-main"
-                 placeholder="🔍  Rechercher un acte ou une déclaration..."
-                 [value]="rechercheActe()"
-                 (input)="onRechercheChange($event)">
+                 placeholder="🔍  Rechercher par nom ou numéro d'acte…"
+                 [value]="searchTerm()"
+                 (input)="onSearch($event)">
         </div>
-
-        <select class="form-control-main filter-select"
-                [value]="filtreStatut()"
-                (change)="onStatutChange($event)">
-          <option value="">Tous les statuts</option>
-          <option value="brouillon">Brouillon</option>
-          <option value="emis">Émis</option>
-          <option value="attente_pere">En attente père</option>
-        </select>
-
-        <select class="form-control-main filter-select"
-                [value]="filtrePeriode()"
-                (change)="onPeriodeChange($event)">
-          <option value="">Toutes les dates</option>
-          <option value="mois">Ce mois</option>
-          <option value="trimestre">Ce trimestre</option>
-          <option value="annee">Cette année</option>
-        </select>
-
-        <button class="btn-outline-main" (click)="appliquerFiltres()">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <line x1="4" y1="6" x2="20" y2="6"/>
-            <line x1="8" y1="12" x2="16" y2="12"/>
-            <line x1="11" y1="18" x2="13" y2="18"/>
-          </svg>
-          Filtrer
-        </button>
       </div>
     </div>
   </div>
@@ -62,80 +62,75 @@
     <div class="card-panel-header">
       <div class="card-panel-title">Liste des actes de naissance</div>
       <span style="font-size:12px;color:var(--text-muted);">
-        {{ actesEmis() }} acte(s) émis sur {{ totalDeclarations() }} déclaration(s)
+        {{ filteredList().length }} acte(s) trouvé(s)
       </span>
     </div>
 
-    <!-- Vue tableau (desktop) -->
-    <div class="table-responsive">
-      <table class="table-custom">
-        <thead>
-          <tr>
-            <th>N° Acte</th>
-            <th>Déclaration</th>
-            <th>Enfant</th>
-            <th>Père</th>
-            <th>Mère</th>
-            <th>Date d'émission</th>
-            <th>Statut</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <!-- actesPagines() = tranche paginée de actesFiltres() -->
-          @for (acte of actesPagines(); track acte.id) {
+    <!-- Spinner de chargement -->
+    @if (isLoading()) {
+      <div class="spinner-wrapper">
+        <div class="spinner"></div>
+        <span class="spinner-label">Chargement des actes…</span>
+      </div>
+    } @else {
+
+      <!-- Vue tableau (desktop) -->
+      <div class="table-responsive">
+        <table class="table-custom">
+          <thead>
             <tr>
-              <td>
-                <span class="decl-ref" [class.decl-ref--gold]="acte.statut !== 'emis'">
-                  {{ acte.numero }}
-                </span>
-              </td>
-              <td class="td-muted">{{ acte.referenceDeclaration }}</td>
-              <td>
-                <span style="font-weight:600;">{{ acte.enfant.nom }} {{ acte.enfant.prenom }}</span>
-              </td>
-              <td>
-                @if (acte.pere) {
-                  <div style="font-size:13px;font-weight:600;">{{ acte.pere.nom }}</div>
-                  <div style="font-size:11.5px;color:var(--text-muted);">{{ acte.pere.profession }}</div>
-                } @else {
-                  <div style="font-size:13px;font-weight:600;color:var(--text-muted);font-style:italic;">
-                    — Non renseigné
-                  </div>
-                }
-              </td>
-              <td style="font-size:13px;">{{ acte.mere.nom }} {{ acte.mere.prenom }}</td>
-              <td class="td-muted">
-                @if (acte.dateEmission) {
-                  {{ acte.dateEmission | date:'dd MMM yyyy' }}
-                } @else { — }
-              </td>
-              <td>
-                @switch (acte.statut) {
-                  @case ('emis')        { <span class="badge-status approved">Émis</span> }
-                  @case ('attente_pere'){ <span class="badge-status pending">Infos père manquantes</span> }
-                  @case ('brouillon')   { <span class="badge-status draft">Brouillon</span> }
-                  @default              { <span class="badge-status review">{{ acte.statut }}</span> }
-                }
-              </td>
-              <td>
-                <div class="d-flex gap-1">
-                  <button class="btn-icon" title="Voir récapitulatif" (click)="ouvrirRecap(acte)">
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                      <circle cx="12" cy="12" r="3"/>
-                    </svg>
-                  </button>
-                  <button class="btn-icon" title="Modifier" (click)="ouvrirModalActe(acte)">
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                    </svg>
-                  </button>
-                  @if (acte.statut === 'emis') {
+              <th>N° Acte</th>
+              <th>Enfant</th>
+              <th>Père</th>
+              <th>Date d'émission</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (acte of paginatedList(); track acte.id) {
+              <tr (click)="openModalView(acte)" style="cursor:pointer;">
+                <td>
+                  <span class="decl-ref">{{ acte.numeroActe ?? '—' }}</span>
+                </td>
+                <td>
+                  <span style="font-weight:600;">
+                    {{ acte.declaration?.enfant?.prenom ?? '' }}
+                    {{ acte.declaration?.enfant?.nom ?? '' }}
+                  </span>
+                </td>
+                <td>
+                  @if (acte.pere) {
+                    <div style="font-size:13px;font-weight:600;">
+                      {{ acte.pere.prenom }} {{ acte.pere.nom }}
+                    </div>
+                    <div style="font-size:11.5px;color:var(--text-muted);">
+                      {{ acte.pere.profession ?? '' }}
+                    </div>
+                  } @else {
+                    <span style="font-size:13px;color:var(--text-muted);font-style:italic;">— Non renseigné</span>
+                  }
+                </td>
+                <td class="td-muted">
+                  {{ acte.date ? (acte.date | date:'dd MMM yyyy') : '—' }}
+                </td>
+                <td>
+                  <div class="d-flex gap-1" (click)="$event.stopPropagation()">
+                    <button class="btn-icon" title="Voir" (click)="openModalView(acte)">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                        <circle cx="12" cy="12" r="3"/>
+                      </svg>
+                    </button>
+                    <button class="btn-icon" title="Modifier" (click)="openModalEdit(acte)">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                      </svg>
+                    </button>
                     <button class="btn-ghost"
                             style="font-size:11.5px;padding:.35rem .65rem;"
-                            (click)="telechargerPdf(acte)">
+                            title="Télécharger PDF"
+                            (click)="downloadActe(acte, $event)">
                       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
                         <polyline points="7 10 12 15 17 10"/>
@@ -143,125 +138,529 @@
                       </svg>
                       PDF
                     </button>
-                  }
-                  @if (acte.statut === 'attente_pere') {
-                    <button class="btn-primary-main"
-                            style="font-size:11.5px;padding:.35rem .75rem;"
-                            (click)="relancerParent(acte)">
-                      Relancer
+                    <button class="btn-icon btn-icon--danger" title="Supprimer"
+                            (click)="deleteActe(acte, $event)">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="3 6 5 6 21 6"/>
+                        <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                        <path d="M10 11v6M14 11v6"/>
+                        <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+                      </svg>
                     </button>
-                  }
-                </div>
-              </td>
-            </tr>
-          } @empty {
-            <tr>
-              <td colspan="8" class="table-empty">
-                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--border)" stroke-width="1.5">
-                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                  <polyline points="14 2 14 8 20 8"/>
-                </svg>
-                <p>Aucun acte ne correspond aux critères sélectionnés</p>
-              </td>
-            </tr>
-          }
-        </tbody>
-      </table>
-    </div>
-
-    <!-- Vue cartes (mobile) -->
-    <div class="cards-mobile">
-      @for (acte of actesPagines(); track acte.id) {
-        <div class="decl-card-mobile">
-          <div class="decl-card-header">
-            <span class="decl-ref" [class.decl-ref--gold]="acte.statut !== 'emis'">
-              {{ acte.numero }}
-            </span>
-            @switch (acte.statut) {
-              @case ('emis')        { <span class="badge-status approved">Émis</span> }
-              @case ('attente_pere'){ <span class="badge-status pending">Père manquant</span> }
-              @default              { <span class="badge-status draft">{{ acte.statut }}</span> }
+                  </div>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="5" class="table-empty">
+                  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--border)" stroke-width="1.5">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                  </svg>
+                  <p>Aucun acte ne correspond aux critères sélectionnés</p>
+                </td>
+              </tr>
             }
-          </div>
-
-          <div class="decl-card-body">
-            <div class="decl-card-row">
-              <span class="decl-card-label">Enfant</span>
-              <span class="decl-card-value">{{ acte.enfant.nom }} {{ acte.enfant.prenom }}</span>
-            </div>
-            <div class="decl-card-row">
-              <span class="decl-card-label">Mère</span>
-              <span class="decl-card-value">{{ acte.mere.nom }} {{ acte.mere.prenom }}</span>
-            </div>
-            <div class="decl-card-row">
-              <span class="decl-card-label">Déclaration</span>
-              <span class="decl-card-value td-muted">{{ acte.referenceDeclaration }}</span>
-            </div>
-            @if (acte.dateEmission) {
-              <div class="decl-card-row">
-                <span class="decl-card-label">Émission</span>
-                <span class="decl-card-value">{{ acte.dateEmission | date:'dd/MM/yyyy' }}</span>
-              </div>
-            }
-          </div>
-
-          <div class="decl-card-footer">
-            <button class="btn-icon" (click)="ouvrirRecap(acte)">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                <circle cx="12" cy="12" r="3"/>
-              </svg>
-            </button>
-            <button class="btn-icon" (click)="ouvrirModalActe(acte)">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-              </svg>
-            </button>
-            @if (acte.statut === 'emis') {
-              <button class="btn-ghost"
-                      style="font-size:11.5px;padding:.35rem .65rem;"
-                      (click)="telechargerPdf(acte)">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                  <polyline points="7 10 12 15 17 10"/>
-                  <line x1="12" y1="15" x2="12" y2="3"/>
-                </svg>
-                PDF
-              </button>
-            }
-          </div>
-        </div>
-      } @empty {
-        <div class="table-empty" style="padding:2rem;">
-          <p>Aucun acte trouvé</p>
-        </div>
-      }
-    </div>
-
-    <!-- Pagination -->
-    <div class="table-pagination">
-      <span style="font-size:12.5px;color:var(--text-muted);">
-        {{ actesFiltres().length }} résultat(s)
-      </span>
-      <div class="d-flex gap-1">
-        <button class="btn-ghost"
-                style="padding:.35rem .65rem;"
-                [disabled]="pageActuelle() === 1"
-                (click)="pagePrecedente()">‹</button>
-
-        @for (p of pages(); track p) {
-          <!-- [class] remplace [class.x] + class statique pour éviter le conflit -->
-          <button [class]="pageActuelle() === p ? 'btn-primary-main' : 'btn-ghost'"
-                  style="padding:.35rem .75rem;font-size:12.5px;"
-                  (click)="allerPage(p)">{{ p }}</button>
-        }
-
-        <button class="btn-ghost"
-                style="padding:.35rem .65rem;"
-                [disabled]="pageActuelle() === pages().length"
-                (click)="pageSuivante()">›</button>
+          </tbody>
+        </table>
       </div>
-    </div>
+
+      <!-- Pagination -->
+      <div class="table-pagination">
+        <span style="font-size:12.5px;color:var(--text-muted);">
+          {{ filteredList().length }} résultat(s)
+        </span>
+        <div class="d-flex gap-1">
+          <button class="btn-ghost"
+                  style="padding:.35rem .65rem;"
+                  [disabled]="currentPage() === 1"
+                  (click)="setPage(currentPage() - 1)">‹</button>
+
+          @for (p of pages(); track p) {
+            <button [class]="currentPage() === p ? 'btn-primary-main' : 'btn-ghost'"
+                    style="padding:.35rem .75rem;font-size:12.5px;"
+                    (click)="setPage(p)">{{ p }}</button>
+          }
+
+          <button class="btn-ghost"
+                  style="padding:.35rem .65rem;"
+                  [disabled]="currentPage() === totalPages()"
+                  (click)="setPage(currentPage() + 1)">›</button>
+        </div>
+      </div>
+
+    }<!-- /fin @else isLoading -->
   </div>
 </div>
+
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     MODAL — CRÉATION
+     ══════════════════════════════════════════════════════════════════════ -->
+@if (showModalAdd()) {
+  <div class="modal-backdrop" (click)="closeModalAdd()">
+    <div class="modal-box modal-box--lg" (click)="$event.stopPropagation()" role="dialog" aria-modal="true">
+
+      <!-- En-tête modal -->
+      <div class="modal-header">
+        <h2 class="modal-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+            <line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/>
+          </svg>
+          Nouvel acte de naissance
+        </h2>
+        <button class="modal-close" (click)="closeModalAdd()" aria-label="Fermer">✕</button>
+      </div>
+
+      <!-- Corps du formulaire -->
+      <div class="modal-body" [formGroup]="acteNaissanceFb">
+
+        <!-- Déclaration + date -->
+        <div class="form-section">
+          <div class="form-section-title">Informations générales</div>
+          <div class="form-grid form-grid--2">
+
+            <div class="form-group">
+              <label class="form-label form-label--required">Déclaration liée</label>
+              <select class="form-control-main" formControlName="declaration"
+                      [class.is-invalid]="ctrl(acteNaissanceFb,'declaration').invalid && ctrl(acteNaissanceFb,'declaration').touched">
+                <option [ngValue]="null" disabled>— Sélectionner une déclaration —</option>
+                @for (decl of listDeclaration(); track decl.id) {
+                  <option [ngValue]="decl.id">{{ decl.enfant.nom }} {{ decl.enfant.prenom }}</option>
+                }
+              </select>
+              @if (ctrl(acteNaissanceFb,'declaration').invalid && ctrl(acteNaissanceFb,'declaration').touched) {
+                <div class="form-error">Ce champ est obligatoire.</div>
+              }
+            </div>
+
+            <div class="form-group">
+              <label class="form-label form-label--required">Date d'émission</label>
+              <input type="date" class="form-control-main" formControlName="date"
+                     [class.is-invalid]="ctrl(acteNaissanceFb,'date').invalid && ctrl(acteNaissanceFb,'date').touched">
+              @if (ctrl(acteNaissanceFb,'date').invalid && ctrl(acteNaissanceFb,'date').touched) {
+                <div class="form-error">Ce champ est obligatoire.</div>
+              }
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Informations père -->
+        <div class="form-section">
+          <div class="form-section-title">Informations du père</div>
+          <div class="form-grid form-grid--2">
+
+            <div class="form-group">
+              <label class="form-label form-label--required">Nom</label>
+              <input type="text" class="form-control-main" formControlName="nomPere" placeholder="Nom du père"
+                     [class.is-invalid]="ctrl(acteNaissanceFb,'nomPere').invalid && ctrl(acteNaissanceFb,'nomPere').touched">
+              @if (ctrl(acteNaissanceFb,'nomPere').invalid && ctrl(acteNaissanceFb,'nomPere').touched) {
+                <div class="form-error">Ce champ est obligatoire.</div>
+              }
+            </div>
+
+            <div class="form-group">
+              <label class="form-label form-label--required">Prénom</label>
+              <input type="text" class="form-control-main" formControlName="prenomPere" placeholder="Prénom du père"
+                     [class.is-invalid]="ctrl(acteNaissanceFb,'prenomPere').invalid && ctrl(acteNaissanceFb,'prenomPere').touched">
+              @if (ctrl(acteNaissanceFb,'prenomPere').invalid && ctrl(acteNaissanceFb,'prenomPere').touched) {
+                <div class="form-error">Ce champ est obligatoire.</div>
+              }
+            </div>
+
+            <div class="form-group">
+              <label class="form-label form-label--required">Téléphone</label>
+              <input type="tel" class="form-control-main" formControlName="telephonePere" placeholder="+237 6XX XXX XXX"
+                     [class.is-invalid]="ctrl(acteNaissanceFb,'telephonePere').invalid && ctrl(acteNaissanceFb,'telephonePere').touched">
+              @if (ctrl(acteNaissanceFb,'telephonePere').invalid && ctrl(acteNaissanceFb,'telephonePere').touched) {
+                <div class="form-error">Ce champ est obligatoire.</div>
+              }
+            </div>
+
+            <div class="form-group">
+              <label class="form-label form-label--required">Email</label>
+              <input type="email" class="form-control-main" formControlName="emailPere" placeholder="email@exemple.com"
+                     [class.is-invalid]="ctrl(acteNaissanceFb,'emailPere').invalid && ctrl(acteNaissanceFb,'emailPere').touched">
+              @if (ctrl(acteNaissanceFb,'emailPere').errors?.['required'] && ctrl(acteNaissanceFb,'emailPere').touched) {
+                <div class="form-error">Ce champ est obligatoire.</div>
+              }
+              @if (ctrl(acteNaissanceFb,'emailPere').errors?.['email'] && ctrl(acteNaissanceFb,'emailPere').touched) {
+                <div class="form-error">Adresse e-mail invalide.</div>
+              }
+            </div>
+
+            <div class="form-group">
+              <label class="form-label form-label--required">Profession</label>
+              <input type="text" class="form-control-main" formControlName="profession" placeholder="Profession"
+                     [class.is-invalid]="ctrl(acteNaissanceFb,'profession').invalid && ctrl(acteNaissanceFb,'profession').touched">
+              @if (ctrl(acteNaissanceFb,'profession').invalid && ctrl(acteNaissanceFb,'profession').touched) {
+                <div class="form-error">Ce champ est obligatoire.</div>
+              }
+            </div>
+
+            <div class="form-group">
+              <label class="form-label form-label--required">Domicile</label>
+              <input type="text" class="form-control-main" formControlName="domicile" placeholder="Adresse de domicile"
+                     [class.is-invalid]="ctrl(acteNaissanceFb,'domicile').invalid && ctrl(acteNaissanceFb,'domicile').touched">
+              @if (ctrl(acteNaissanceFb,'domicile').invalid && ctrl(acteNaissanceFb,'domicile').touched) {
+                <div class="form-error">Ce champ est obligatoire.</div>
+              }
+            </div>
+
+            <div class="form-group">
+              <label class="form-label form-label--required">Date de naissance</label>
+              <input type="date" class="form-control-main" formControlName="dateNaissance"
+                     [class.is-invalid]="ctrl(acteNaissanceFb,'dateNaissance').invalid && ctrl(acteNaissanceFb,'dateNaissance').touched">
+              @if (ctrl(acteNaissanceFb,'dateNaissance').invalid && ctrl(acteNaissanceFb,'dateNaissance').touched) {
+                <div class="form-error">Ce champ est obligatoire.</div>
+              }
+            </div>
+
+            <div class="form-group">
+              <label class="form-label form-label--required">Lieu de naissance</label>
+              <input type="text" class="form-control-main" formControlName="lieuNaissance" placeholder="Lieu de naissance"
+                     [class.is-invalid]="ctrl(acteNaissanceFb,'lieuNaissance').invalid && ctrl(acteNaissanceFb,'lieuNaissance').touched">
+              @if (ctrl(acteNaissanceFb,'lieuNaissance').invalid && ctrl(acteNaissanceFb,'lieuNaissance').touched) {
+                <div class="form-error">Ce champ est obligatoire.</div>
+              }
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Pièces justificatives -->
+        <div class="form-section">
+          <div class="form-section-title">Pièces justificatives</div>
+          <div class="form-grid form-grid--2">
+
+            <!-- CNI Père -->
+            <div class="form-group">
+              <label class="form-label form-label--required">CNI du père</label>
+              <div class="file-upload-zone" [class.file-upload-zone--filled]="cniPere">
+                <input type="file" id="cniPereInput" accept=".jpg,.jpeg,.png,.pdf"
+                       (change)="onSelectCniPere($event)" style="display:none">
+                @if (!cniPere) {
+                  <label for="cniPereInput" class="file-upload-label">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                      <polyline points="17 8 12 3 7 8"/>
+                      <line x1="12" y1="3" x2="12" y2="15"/>
+                    </svg>
+                    <span>Cliquer pour sélectionner</span>
+                    <span class="file-hint">JPG, PNG ou PDF</span>
+                  </label>
+                } @else {
+                  <div class="file-selected">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                      <polyline points="14 2 14 8 20 8"/>
+                    </svg>
+                    <span class="file-name">{{ cniPereNom() }}</span>
+                    <button type="button" class="file-remove" (click)="supprimerCniPere()" title="Supprimer">✕</button>
+                  </div>
+                }
+              </div>
+            </div>
+
+            <!-- Photo 4×4 Père -->
+            <div class="form-group">
+              <label class="form-label form-label--required">Photo d'identité 4×4 (père)</label>
+              <div class="file-upload-zone" [class.file-upload-zone--filled]="photo4x4Pere">
+                <input type="file" id="photoInput" accept=".jpg,.jpeg,.png"
+                       (change)="onSelectPhoto4x4Pere($event)" style="display:none">
+                @if (!photo4x4Pere) {
+                  <label for="photoInput" class="file-upload-label">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                      <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                      <circle cx="8.5" cy="8.5" r="1.5"/>
+                      <polyline points="21 15 16 10 5 21"/>
+                    </svg>
+                    <span>Cliquer pour sélectionner</span>
+                    <span class="file-hint">JPG ou PNG uniquement</span>
+                  </label>
+                } @else {
+                  <div class="file-selected">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                      <circle cx="8.5" cy="8.5" r="1.5"/>
+                      <polyline points="21 15 16 10 5 21"/>
+                    </svg>
+                    <span class="file-name">{{ photo4x4PereNom() }}</span>
+                    <button type="button" class="file-remove" (click)="supprimerPhoto4x4Pere()" title="Supprimer">✕</button>
+                  </div>
+                }
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div><!-- /modal-body -->
+
+      <!-- Pied de modal -->
+      <div class="modal-footer">
+        <button class="btn-outline-main" (click)="closeModalAdd()" [disabled]="isSubmitting()">
+          Annuler
+        </button>
+        <button class="btn-primary-main" (click)="createActe()" [disabled]="isSubmitting()">
+          @if (isSubmitting()) {
+            <span class="btn-spinner"></span>
+            Création en cours…
+          } @else {
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+            Créer l'acte
+          }
+        </button>
+      </div>
+
+    </div>
+  </div>
+}
+
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     MODAL — VISUALISATION
+     ══════════════════════════════════════════════════════════════════════ -->
+@if (showModalView() && acteSelected()) {
+  <div class="modal-backdrop" (click)="closeModalView()">
+    <div class="modal-box" (click)="$event.stopPropagation()" role="dialog" aria-modal="true">
+
+      <div class="modal-header">
+        <h2 class="modal-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+          Détails de l'acte
+        </h2>
+        <button class="modal-close" (click)="closeModalView()">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="detail-grid">
+
+          <div class="detail-item">
+            <span class="detail-label">N° Acte</span>
+            <span class="detail-value decl-ref">{{ acteSelected()!.numeroActe ?? '—' }}</span>
+          </div>
+
+          <div class="detail-item">
+            <span class="detail-label">Date d'émission</span>
+            <span class="detail-value">
+              {{ acteSelected()!.date ? (acteSelected()!.date | date:'dd MMMM yyyy') : '—' }}
+            </span>
+          </div>
+
+          <div class="detail-item detail-item--full">
+            <span class="detail-label">Enfant</span>
+            <span class="detail-value" style="font-weight:600;">
+              {{ acteSelected()!.declaration?.enfant?.prenom ?? '' }}
+              {{ acteSelected()!.declaration?.enfant?.nom ?? '' }}
+            </span>
+          </div>
+
+          @if (acteSelected()!.pere) {
+            <div class="detail-item">
+              <span class="detail-label">Père</span>
+              <span class="detail-value">
+                {{ acteSelected()!.pere?.prenom }} {{ acteSelected()!.pere?.nom }}
+              </span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Téléphone père</span>
+              <span class="detail-value">{{ acteSelected()!.pere?.telephone ?? '—' }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Email père</span>
+              <span class="detail-value">{{ acteSelected()!.pere?.email ?? '—' }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Profession</span>
+              <span class="detail-value">{{ acteSelected()!.pere?.profession ?? '—' }}</span>
+            </div>
+          } @else {
+            <div class="detail-item detail-item--full">
+              <span class="detail-label">Père</span>
+              <span class="detail-value" style="font-style:italic;color:var(--text-muted);">Non renseigné</span>
+            </div>
+          }
+
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-outline-main" (click)="closeModalView()">Fermer</button>
+        <button class="btn-primary-main" (click)="openModalEdit(acteSelected()!)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+          </svg>
+          Modifier
+        </button>
+      </div>
+
+    </div>
+  </div>
+}
+
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     MODAL — ÉDITION
+     ══════════════════════════════════════════════════════════════════════ -->
+@if (showModalEdit()) {
+  <div class="modal-backdrop" (click)="closeModalEdit()">
+    <div class="modal-box modal-box--lg" (click)="$event.stopPropagation()" role="dialog" aria-modal="true">
+
+      <div class="modal-header">
+        <h2 class="modal-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+          </svg>
+          Modifier l'acte — {{ acteSelected()?.numeroActe ?? '' }}
+        </h2>
+        <button class="modal-close" (click)="closeModalEdit()">✕</button>
+      </div>
+
+      <div class="modal-body" [formGroup]="acteEditFb">
+
+        <div class="form-section">
+          <div class="form-section-title">Informations générales</div>
+          <div class="form-grid form-grid--2">
+
+            <div class="form-group">
+              <label class="form-label form-label--required">Déclaration liée</label>
+              <select class="form-control-main" formControlName="declaration"
+                      [class.is-invalid]="ctrl(acteEditFb,'declaration').invalid && ctrl(acteEditFb,'declaration').touched">
+                <option [ngValue]="null" disabled>— Sélectionner une déclaration —</option>
+                @for (decl of listDeclaration(); track decl.id) {
+                  <option [ngValue]="decl.id">{{ decl.enfant.nom  }} {{ decl.enfant.prenom  }}</option>
+                }
+              </select>
+              @if (ctrl(acteEditFb,'declaration').invalid && ctrl(acteEditFb,'declaration').touched) {
+                <div class="form-error">Ce champ est obligatoire.</div>
+              }
+            </div>
+
+            <div class="form-group">
+              <label class="form-label form-label--required">Date d'émission</label>
+              <input type="date" class="form-control-main" formControlName="date"
+                     [class.is-invalid]="ctrl(acteEditFb,'date').invalid && ctrl(acteEditFb,'date').touched">
+              @if (ctrl(acteEditFb,'date').invalid && ctrl(acteEditFb,'date').touched) {
+                <div class="form-error">Ce champ est obligatoire.</div>
+              }
+            </div>
+
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="form-section-title">Informations du père</div>
+          <div class="form-grid form-grid--2">
+
+            <div class="form-group">
+              <label class="form-label form-label--required">Nom</label>
+              <input type="text" class="form-control-main" formControlName="nomPere"
+                     [class.is-invalid]="ctrl(acteEditFb,'nomPere').invalid && ctrl(acteEditFb,'nomPere').touched">
+              @if (ctrl(acteEditFb,'nomPere').invalid && ctrl(acteEditFb,'nomPere').touched) {
+                <div class="form-error">Ce champ est obligatoire.</div>
+              }
+            </div>
+
+            <div class="form-group">
+              <label class="form-label form-label--required">Prénom</label>
+              <input type="text" class="form-control-main" formControlName="prenomPere"
+                     [class.is-invalid]="ctrl(acteEditFb,'prenomPere').invalid && ctrl(acteEditFb,'prenomPere').touched">
+              @if (ctrl(acteEditFb,'prenomPere').invalid && ctrl(acteEditFb,'prenomPere').touched) {
+                <div class="form-error">Ce champ est obligatoire.</div>
+              }
+            </div>
+
+            <div class="form-group">
+              <label class="form-label form-label--required">Téléphone</label>
+              <input type="tel" class="form-control-main" formControlName="telephonePere"
+                     [class.is-invalid]="ctrl(acteEditFb,'telephonePere').invalid && ctrl(acteEditFb,'telephonePere').touched">
+              @if (ctrl(acteEditFb,'telephonePere').invalid && ctrl(acteEditFb,'telephonePere').touched) {
+                <div class="form-error">Ce champ est obligatoire.</div>
+              }
+            </div>
+
+            <div class="form-group">
+              <label class="form-label form-label--required">Email</label>
+              <input type="email" class="form-control-main" formControlName="emailPere"
+                     [class.is-invalid]="ctrl(acteEditFb,'emailPere').invalid && ctrl(acteEditFb,'emailPere').touched">
+              @if (ctrl(acteEditFb,'emailPere').errors?.['required'] && ctrl(acteEditFb,'emailPere').touched) {
+                <div class="form-error">Ce champ est obligatoire.</div>
+              }
+              @if (ctrl(acteEditFb,'emailPere').errors?.['email'] && ctrl(acteEditFb,'emailPere').touched) {
+                <div class="form-error">Adresse e-mail invalide.</div>
+              }
+            </div>
+
+            <div class="form-group">
+              <label class="form-label form-label--required">Profession</label>
+              <input type="text" class="form-control-main" formControlName="profession"
+                     [class.is-invalid]="ctrl(acteEditFb,'profession').invalid && ctrl(acteEditFb,'profession').touched">
+              @if (ctrl(acteEditFb,'profession').invalid && ctrl(acteEditFb,'profession').touched) {
+                <div class="form-error">Ce champ est obligatoire.</div>
+              }
+            </div>
+
+            <div class="form-group">
+              <label class="form-label form-label--required">Domicile</label>
+              <input type="text" class="form-control-main" formControlName="domicile"
+                     [class.is-invalid]="ctrl(acteEditFb,'domicile').invalid && ctrl(acteEditFb,'domicile').touched">
+              @if (ctrl(acteEditFb,'domicile').invalid && ctrl(acteEditFb,'domicile').touched) {
+                <div class="form-error">Ce champ est obligatoire.</div>
+              }
+            </div>
+
+            <div class="form-group">
+              <label class="form-label form-label--required">Date de naissance</label>
+              <input type="date" class="form-control-main" formControlName="dateNaissance"
+                     [class.is-invalid]="ctrl(acteEditFb,'dateNaissance').invalid && ctrl(acteEditFb,'dateNaissance').touched">
+              @if (ctrl(acteEditFb,'dateNaissance').invalid && ctrl(acteEditFb,'dateNaissance').touched) {
+                <div class="form-error">Ce champ est obligatoire.</div>
+              }
+            </div>
+
+            <div class="form-group">
+              <label class="form-label form-label--required">Lieu de naissance</label>
+              <input type="text" class="form-control-main" formControlName="lieuNaissance"
+                     [class.is-invalid]="ctrl(acteEditFb,'lieuNaissance').invalid && ctrl(acteEditFb,'lieuNaissance').touched">
+              @if (ctrl(acteEditFb,'lieuNaissance').invalid && ctrl(acteEditFb,'lieuNaissance').touched) {
+                <div class="form-error">Ce champ est obligatoire.</div>
+              }
+            </div>
+
+          </div>
+        </div>
+
+      </div><!-- /modal-body -->
+
+      <div class="modal-footer">
+        <button class="btn-outline-main" (click)="closeModalEdit()" [disabled]="isSubmitting()">
+          Annuler
+        </button>
+        <button class="btn-primary-main" (click)="updateActe()" [disabled]="isSubmitting()">
+          @if (isSubmitting()) {
+            <span class="btn-spinner"></span>
+            Mise à jour…
+          } @else {
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+            Enregistrer
+          }
+        </button>
+      </div>
+
+    </div>
+  </div>
+}
+

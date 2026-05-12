@@ -4,6 +4,10 @@ import { authGuard } from './Core/Guards/AuthGuard';
 export const routes: Routes = [
     //LOGIN
     {
+        path: '',
+                loadComponent: () => import('./Features/Auth/auth/auth').then(m => m.Auth), 
+    }, 
+    {
         path: 'login',
                 loadComponent: () => import('./Features/Auth/auth/auth').then(m => m.Auth), 
     }, 
@@ -21,7 +25,7 @@ export const routes: Routes = [
             },
             { 
                 path: 'acte-naissance', 
-                loadComponent: () => import('./Features/Admin/Mairie/acte-naissance/acte-naissance').then(m => m.ActeNaissance) 
+                loadComponent: () => import('./Features/Admin/Mairie/acte-naissance/acte-naissance').then(m => m.ActeNaissanceC) 
             }, 
             { 
                 path: 'declaration', 
@@ -71,7 +75,7 @@ export const routes: Routes = [
     //ROUTES HOPITAL 
     {
         path: 'hopital', 
-        loadComponent: () => import('./Features/Portail/hopital/hopital').then(m => m.Hopital) 
+        loadComponent: () => import('./Features/Portail/hopital/hopital').then(m => m.HopitalC) 
 
     }
 ];

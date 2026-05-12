@@ -1,4 +1,4 @@
-import { Parent } from "../Utilisateur/Parent";
+import { Parent } from "../User/Parent";
 import { Declaration } from "./Declaration";
 
 export interface ActeNaissance{

@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Sexe } from '../../Model/Enfant/Sexe';
 import { Observable } from 'rxjs';
-import { eHAllSystemEndPoints } from '../../Constant/EndPoints';
+import { eHAllSystemEndPoints } from '../../Constants/Endpoints';
 
 @Injectable({
   providedIn: 'root',

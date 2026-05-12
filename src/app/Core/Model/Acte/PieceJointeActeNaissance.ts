@@ -1,4 +1,4 @@
-import { ActeNaissance } from "../../../Features/Admin/Super/acte-naissance/acte-naissance";
+import { ActeNaissance } from "./ActeNaissance";
 import { TypePiece } from "./TypePiece";
 
 export interface PieceJointeActeNaissance{

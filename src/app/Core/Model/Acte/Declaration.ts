@@ -1,8 +1,7 @@
 import { Enfant } from "../Enfant/Enfant";
-import { Etablissement } from "../Etablissement/Etablissement";
 import { Hopital } from "../Etablissement/Hopital";
 import { Mairie } from "../Etablissement/Mairie";
-import { Parent } from "../Utilisateur/Parent";
+import { Parent } from "../User/Parent";
 
 export interface Declaration {
     id: number;

@@ -2,9 +2,9 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { ServerResponse } from '../../Model/Server/ServerResponse';
 import { Observable } from 'rxjs';
-import { eHAllSystemEndPoints } from '../../Constant/EndPoints';
 import { Declaration } from '../../Model/Acte/Declaration';
 import { ActeNaissance } from '../../Model/Acte/ActeNaissance';
+import { eHAllSystemEndPoints } from '../../Constants/Endpoints';
 
 @Injectable({
   providedIn: 'root',
