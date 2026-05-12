@@ -1,0 +1,24 @@
+<!-- ── Topbar ────────────────────────────────────────── -->
+<div class="topbar">
+  <span>Mairie — Service État Civil</span>
+  <span>|</span>
+  <span>Exercice 2025</span>
+  <div class="ms-auto d-flex gap-3">
+    <a href="#">Aide</a>
+    <a href="#">Notifications <span style="background:var(--accent);color:#fff;padding:.05rem .35rem;border-radius:50px;font-size:10px;font-weight:700;">3</span></a>
+    <a href="login.html">Déconnexion</a>
+  </div>
+</div>
+
+<!-- ── Navbar ────────────────────────────────────────── -->
+  <app-admin-navbar></app-admin-navbar>
+<!-- ── Layout Sidebar + Contenu ──────────────────────── -->
+<div class="layout-sidebar">
+
+  <!-- Sidebar -->
+  <app-admin-sidebar></app-admin-sidebar>
+
+  <!-- Contenu principal -->
+    <router-outlet></router-outlet>
+</div>
+
