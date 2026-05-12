@@ -1,1 +1,271 @@
-<p>declaration works!</p>
+<div id="section-declarations" class="dash-section" style="display:none;">
+      <div class="page-header">
+        <div class="page-header-left">
+          <div class="page-eyebrow">Mes dossiers</div>
+          <h1 class="page-title">Mes Déclarations de Naissance</h1>
+          <div class="page-subtitle">Déclarations émises par l'hôpital et transmises à la mairie</div>
+        </div>
+      </div>
+
+      <!-- Carte déclaration 1 -->
+      <div class="card-panel mb-3" style="border-left:4px solid #16a34a;">
+        <div class="card-panel-body">
+          <div class="d-flex justify-content-between align-items-flex-start flex-wrap gap-3">
+            <div>
+              <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.75rem;">
+                <div style="font-family:var(--font-display);font-size:17px;font-weight:700;color:var(--text);">Emma Fontaine</div>
+                <span class="badge-status approved">Acte émis</span>
+              </div>
+              <div class="row g-2" style="font-size:13px;">
+                <div class="col-auto"><span style="color:var(--text-muted);">N° dossier :</span> <strong>DEC-2024-001</strong></div>
+                <div class="col-auto"><span style="color:var(--text-muted);">Sexe :</span> <strong>Féminin</strong></div>
+                <div class="col-auto"><span style="color:var(--text-muted);">Naissance :</span> <strong>14 Jan. 2025</strong></div>
+                <div class="col-auto"><span style="color:var(--text-muted);">Lieu :</span> <strong>Hôpital Général, Douala</strong></div>
+              </div>
+            </div>
+            <div class="d-flex gap-2 flex-wrap">
+              <button class="btn-outline-main" onclick="openModal('modal-suivi-1')">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                Suivre le dossier
+              </button>
+              <button class="btn-primary-main" onclick="showToast('Acte ACTE-001/2025 téléchargé.', 'success')">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Télécharger l'acte
+              </button>
+            </div>
+          </div>
+
+          <!-- Mini timeline -->
+          <div style="margin-top:1.25rem;padding-top:1rem;border-top:1px solid var(--border-light);">
+            <div style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text-muted);margin-bottom:.75rem;">Progression du dossier</div>
+            <div style="display:flex;align-items:center;gap:0;">
+              <div style="text-align:center;flex:1;">
+                <div style="width:28px;height:28px;border-radius:50%;background:#16a34a;display:flex;align-items:center;justify-content:center;margin:0 auto .35rem;color:#fff;font-size:12px;">✓</div>
+                <div style="font-size:10.5px;color:#16a34a;font-weight:600;">Déclaration</div>
+              </div>
+              <div style="flex:1;height:2px;background:#16a34a;"></div>
+              <div style="text-align:center;flex:1;">
+                <div style="width:28px;height:28px;border-radius:50%;background:#16a34a;display:flex;align-items:center;justify-content:center;margin:0 auto .35rem;color:#fff;font-size:12px;">✓</div>
+                <div style="font-size:10.5px;color:#16a34a;font-weight:600;">Réception mairie</div>
+              </div>
+              <div style="flex:1;height:2px;background:#16a34a;"></div>
+              <div style="text-align:center;flex:1;">
+                <div style="width:28px;height:28px;border-radius:50%;background:#16a34a;display:flex;align-items:center;justify-content:center;margin:0 auto .35rem;color:#fff;font-size:12px;">✓</div>
+                <div style="font-size:10.5px;color:#16a34a;font-weight:600;">Traitement</div>
+              </div>
+              <div style="flex:1;height:2px;background:#16a34a;"></div>
+              <div style="text-align:center;flex:1;">
+                <div style="width:28px;height:28px;border-radius:50%;background:#16a34a;display:flex;align-items:center;justify-content:center;margin:0 auto .35rem;color:#fff;font-size:12px;">✓</div>
+                <div style="font-size:10.5px;color:#16a34a;font-weight:600;">Acte émis</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Carte déclaration 2 -->
+      <div class="card-panel" style="border-left:4px solid var(--gold);">
+        <div class="card-panel-body">
+          <div class="d-flex justify-content-between align-items-flex-start flex-wrap gap-3">
+            <div>
+              <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.75rem;">
+                <div style="font-family:var(--font-display);font-size:17px;font-weight:700;color:var(--text);">Liam Mbarga</div>
+                <span class="badge-status pending">Infos père manquantes</span>
+              </div>
+              <div class="row g-2" style="font-size:13px;">
+                <div class="col-auto"><span style="color:var(--text-muted);">N° dossier :</span> <strong>DEC-2024-002</strong></div>
+                <div class="col-auto"><span style="color:var(--text-muted);">Sexe :</span> <strong>Masculin</strong></div>
+                <div class="col-auto"><span style="color:var(--text-muted);">Naissance :</span> <strong>20 Jan. 2025</strong></div>
+                <div class="col-auto"><span style="color:var(--text-muted);">Lieu :</span> <strong>Hôpital Général, Douala</strong></div>
+              </div>
+            </div>
+            <div class="d-flex gap-2 flex-wrap">
+              <button class="btn-outline-main" onclick="openModal('modal-suivi-2')">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                Suivre le dossier
+              </button>
+            </div>
+          </div>
+
+          <!-- Mini timeline partielle -->
+          <div style="margin-top:1.25rem;padding-top:1rem;border-top:1px solid var(--border-light);">
+            <div style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text-muted);margin-bottom:.75rem;">Progression du dossier</div>
+            <div style="display:flex;align-items:center;gap:0;">
+              <div style="text-align:center;flex:1;">
+                <div style="width:28px;height:28px;border-radius:50%;background:#16a34a;display:flex;align-items:center;justify-content:center;margin:0 auto .35rem;color:#fff;font-size:12px;">✓</div>
+                <div style="font-size:10.5px;color:#16a34a;font-weight:600;">Déclaration</div>
+              </div>
+              <div style="flex:1;height:2px;background:#16a34a;"></div>
+              <div style="text-align:center;flex:1;">
+                <div style="width:28px;height:28px;border-radius:50%;background:#16a34a;display:flex;align-items:center;justify-content:center;margin:0 auto .35rem;color:#fff;font-size:12px;">✓</div>
+                <div style="font-size:10.5px;color:#16a34a;font-weight:600;">Réception mairie</div>
+              </div>
+              <div style="flex:1;height:2px;background:var(--gold);"></div>
+              <div style="text-align:center;flex:1;">
+                <div style="width:28px;height:28px;border-radius:50%;background:var(--gold);display:flex;align-items:center;justify-content:center;margin:0 auto .35rem;color:#fff;font-size:12px;">⋯</div>
+                <div style="font-size:10.5px;color:var(--gold);font-weight:600;">En attente</div>
+              </div>
+              <div style="flex:1;height:2px;background:var(--border);"></div>
+              <div style="text-align:center;flex:1;">
+                <div style="width:28px;height:28px;border-radius:50%;background:var(--border);display:flex;align-items:center;justify-content:center;margin:0 auto .35rem;color:var(--text-light);font-size:12px;">○</div>
+                <div style="font-size:10.5px;color:var(--text-muted);">Acte émis</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Alerte action -->
+          <div style="margin-top:1rem;background:#fef3c7;border:1px solid #fcd34d;border-radius:var(--radius-sm);padding:.75rem 1rem;display:flex;gap:.6rem;align-items:center;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#b45309" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/></svg>
+            <span style="font-size:12.5px;color:#78350f;font-weight:500;">Présentez-vous à la mairie avec votre conjoint et sa pièce d'identité pour compléter ce dossier.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    
+<!-- ══════════════════════════════════════════════════
+     MODALE : Suivi détaillé dossier 1
+══════════════════════════════════════════════════ -->
+<div id="modal-suivi-1" class="modal-overlay">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-header-left">
+        <div class="modal-header-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <div>
+          <div class="modal-title">Suivi du dossier</div>
+          <div class="modal-subtitle">Emma Fontaine · DEC-2024-001</div>
+        </div>
+      </div>
+      <button class="modal-close" onclick="closeModal('modal-suivi-1')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="recap-section mb-3">
+        <div class="recap-header"><div class="recap-header-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><circle cx="12" cy="8" r="4"/></svg></div><h3>Résumé</h3></div>
+        <div class="recap-body">
+          <div class="recap-grid">
+            <div class="recap-field"><div class="recap-field-label">Enfant</div><div class="recap-field-value">Emma Fontaine</div></div>
+            <div class="recap-field"><div class="recap-field-label">N° acte</div><div class="recap-field-value" style="color:var(--primary);font-weight:700;">ACTE-001/2025</div></div>
+            <div class="recap-field"><div class="recap-field-label">Date naissance</div><div class="recap-field-value">14 Janvier 2025</div></div>
+            <div class="recap-field"><div class="recap-field-label">Statut</div><div class="recap-field-value"><span class="badge-status approved">Acte émis</span></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:1rem;">Historique complet</div>
+        <ul class="timeline">
+          <li class="timeline-item">
+            <div class="timeline-dot done">✓</div>
+            <div class="timeline-content">
+              <div class="timeline-date">14 Jan. 2025 · 07h22</div>
+              <div class="timeline-label">Déclaration enregistrée à l'hôpital</div>
+              <div class="timeline-desc">Sage-femme A. — Hôpital Général de Douala</div>
+            </div>
+          </li>
+          <li class="timeline-item">
+            <div class="timeline-dot done">✓</div>
+            <div class="timeline-content">
+              <div class="timeline-date">14 Jan. 2025 · 09h10</div>
+              <div class="timeline-label">Dossier transmis à la mairie</div>
+              <div class="timeline-desc">Tous les documents validés et transmis automatiquement.</div>
+            </div>
+          </li>
+          <li class="timeline-item">
+            <div class="timeline-dot done">✓</div>
+            <div class="timeline-content">
+              <div class="timeline-date">14 Jan. 2025 · 11h34</div>
+              <div class="timeline-label">Dossier pris en charge</div>
+              <div class="timeline-desc">Agent C. Mballa — Service État Civil</div>
+            </div>
+          </li>
+          <li class="timeline-item">
+            <div class="timeline-dot done">✓</div>
+            <div class="timeline-content">
+              <div class="timeline-date">15 Jan. 2025 · 14h32</div>
+              <div class="timeline-label">Acte de naissance émis</div>
+              <div class="timeline-desc">ACTE-001/2025 disponible au téléchargement.</div>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" onclick="closeModal('modal-suivi-1')">Fermer</button>
+      <button class="btn-primary-main" onclick="showToast('Téléchargement de ACTE-001/2025.pdf', 'success')">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Télécharger l'acte
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     MODALE : Suivi détaillé dossier 2
+══════════════════════════════════════════════════ -->
+<div id="modal-suivi-2" class="modal-overlay">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-header-left">
+        <div class="modal-header-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <div>
+          <div class="modal-title">Suivi du dossier</div>
+          <div class="modal-subtitle">Liam Mbarga · DEC-2024-002</div>
+        </div>
+      </div>
+      <button class="modal-close" onclick="closeModal('modal-suivi-2')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div style="background:#fef3c7;border:1px solid #fcd34d;border-radius:var(--radius-sm);padding:.85rem 1rem;margin-bottom:1rem;display:flex;gap:.6rem;align-items:flex-start;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#b45309" stroke-width="2" style="flex-shrink:0;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/></svg>
+        <div style="font-size:12.5px;color:#78350f;">Action requise : rendez-vous à la mairie avec le père et sa CNI pour compléter le dossier.</div>
+      </div>
+
+      <ul class="timeline">
+        <li class="timeline-item">
+          <div class="timeline-dot done">✓</div>
+          <div class="timeline-content">
+            <div class="timeline-date">20 Jan. 2025 · 08h15</div>
+            <div class="timeline-label">Déclaration enregistrée à l'hôpital</div>
+            <div class="timeline-desc">Hôpital Général de Douala</div>
+          </div>
+        </li>
+        <li class="timeline-item">
+          <div class="timeline-dot done">✓</div>
+          <div class="timeline-content">
+            <div class="timeline-date">20 Jan. 2025 · 11h45</div>
+            <div class="timeline-label">Dossier reçu par la mairie</div>
+            <div class="timeline-desc">Pris en charge par l'agent C. Mballa.</div>
+          </div>
+        </li>
+        <li class="timeline-item">
+          <div class="timeline-dot current">!</div>
+          <div class="timeline-content">
+            <div class="timeline-date">En cours</div>
+            <div class="timeline-label">Informations du père manquantes</div>
+            <div class="timeline-desc">Le dossier est incomplet. Veuillez vous présenter en mairie avec votre conjoint.</div>
+          </div>
+        </li>
+        <li class="timeline-item">
+          <div class="timeline-dot">○</div>
+          <div class="timeline-content">
+            <div class="timeline-date">À venir</div>
+            <div class="timeline-label">Émission de l'acte</div>
+            <div class="timeline-desc">L'acte sera émis après complétion du dossier.</div>
+          </div>
+        </li>
+      </ul>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" onclick="closeModal('modal-suivi-2')">Fermer</button>
+    </div>
+  </div>
+</div>

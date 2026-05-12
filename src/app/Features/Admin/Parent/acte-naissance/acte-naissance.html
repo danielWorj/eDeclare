@@ -1,1 +1,57 @@
-<p>acte-naissance works!</p>
+<div id="section-actes" class="dash-section" style="display:none;">
+      <div class="page-header">
+        <div class="page-header-left">
+          <div class="page-eyebrow">Documents officiels</div>
+          <h1 class="page-title">Mes Actes de Naissance</h1>
+          <div class="page-subtitle">Actes officiels établis par la mairie</div>
+        </div>
+      </div>
+
+      <div class="card-panel">
+        <div class="card-panel-body">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:1.25rem;border:1px solid var(--border-light);border-radius:var(--radius-lg);margin-bottom:1rem;gap:1rem;flex-wrap:wrap;transition:all var(--transition);"
+               onmouseover="this.style.borderColor='var(--primary)';this.style.background='var(--primary-xlight)'"
+               onmouseout="this.style.borderColor='var(--border-light)';this.style.background=''">
+            <div style="display:flex;align-items:center;gap:1rem;">
+              <div style="width:48px;height:48px;background:var(--primary);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              </div>
+              <div>
+                <div style="font-family:var(--font-display);font-size:16px;font-weight:700;color:var(--text);">Acte de naissance — Emma Fontaine</div>
+                <div style="font-size:12px;color:var(--text-muted);margin-top:.2rem;">N° ACTE-001/2025 · Émis le 15 Janvier 2025 · Agent : C. Mballa</div>
+              </div>
+            </div>
+            <div class="d-flex gap-2 align-items-center">
+              <span class="badge-status approved">Officiel</span>
+              <button class="btn-primary-main" onclick="showToast('Téléchargement de ACTE-001/2025.pdf', 'success')">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Télécharger
+              </button>
+            </div>
+          </div>
+
+          <!-- Acte en attente -->
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:1.25rem;border:1px dashed var(--border);border-radius:var(--radius-lg);gap:1rem;flex-wrap:wrap;opacity:.65;">
+            <div style="display:flex;align-items:center;gap:1rem;">
+              <div style="width:48px;height:48px;background:var(--border);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              </div>
+              <div>
+                <div style="font-family:var(--font-display);font-size:16px;font-weight:700;color:var(--text-muted);">Acte de naissance — Liam Mbarga</div>
+                <div style="font-size:12px;color:var(--text-light);margin-top:.2rem;">En attente de complétion du dossier · Informations du père manquantes</div>
+              </div>
+            </div>
+            <span class="badge-status pending">En attente</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Info box -->
+      <div style="background:var(--primary-xlight);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem;margin-top:1.25rem;display:flex;gap:.85rem;align-items:flex-start;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" style="flex-shrink:0;margin-top:.1rem;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <div>
+          <div style="font-size:13px;font-weight:700;color:var(--primary);margin-bottom:.25rem;">À propos de vos actes de naissance</div>
+          <div style="font-size:12.5px;color:var(--text-muted);line-height:1.6;">Les actes téléchargeables sont des copies numériques officielles signées électroniquement. Pour des copies certifiées conformes, veuillez vous rendre au guichet de la mairie avec votre pièce d'identité.</div>
+        </div>
+      </div>
+    </div>

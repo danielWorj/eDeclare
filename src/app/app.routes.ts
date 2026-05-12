@@ -1,15 +1,22 @@
 import { Routes } from '@angular/router';
+import { authGuard } from './Core/Guards/AuthGuard';
 
 export const routes: Routes = [
+    //LOGIN
+    {
+        path: 'login',
+                loadComponent: () => import('./Features/Auth/auth/auth').then(m => m.Auth), 
+    }, 
     //ROUTES MAIRIE
      {
         path: 'mairie',
         loadComponent: () => import('./Features/Admin/Layout/layouts/layouts').then(m => m.Layouts), 
+        canActivate: [authGuard],
         children: [
             //MAIRIE
             
             { 
-                path: '', 
+                path: 'dashboard', 
                 loadComponent: () => import('./Features/Admin/Mairie/dashboard/dashboard').then(m => m.Dashboard) 
             },
             { 
@@ -35,11 +42,12 @@ export const routes: Routes = [
      {
         path: 'parent',
         loadComponent: () => import('./Features/Admin/Layout/layouts/layouts').then(m => m.Layouts), 
+        canActivate: [authGuard],
         children: [
             //MAIRIE
             
             { 
-                path: '', 
+                path: 'dashboard', 
                 loadComponent: () => import('./Features/Admin/Parent/dasboard/dasboard').then(m => m.Dasboard) 
             },
             { 
