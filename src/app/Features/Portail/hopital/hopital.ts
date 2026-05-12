@@ -1,14 +1,13 @@
-import { Component, signal, OnInit } from '@angular/core';
-
+import { Component, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormBuilder, FormControl, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 
 import { Sexe } from '../../../Core/Model/Enfant/Sexe';
-import { FormBuilder, FormControl, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
 import { ActeService } from '../../../Core/Service/Acte/acte-service';
 import { UtilisateurService } from '../../../Core/Service/Utilisateur/utilisateur-service';
+import { EtablissementService } from '../../../Core/Service/Etablissement/etablissement-service';
 import { ServerResponse } from '../../../Core/Model/Server/ServerResponse';
 import { Declaration } from '../../../Core/Model/Acte/Declaration';
-import { EtablissementService } from '../../../Core/Service/Etablissement/etablissement-service';
 import { Hopital } from '../../../Core/Model/Etablissement/Hopital';
 
 @Component({
@@ -18,29 +17,38 @@ import { Hopital } from '../../../Core/Model/Etablissement/Hopital';
   templateUrl: './hopital.html',
   styleUrl: './hopital.css',
 })
-export class HopitalC  {
+export class HopitalC {
 
   // ─── ID de l'établissement connecté ─────────────────────────────────────────
-  idHopital = signal<number>(0);
+  idHopital        = signal<number>(0);
   hopitalConnected = signal<Hopital | null>(null);
-  listeSexes = signal<Sexe[]>([]);
+  listeSexes       = signal<Sexe[]>([]);
 
-  // ─── État de la soumission ───────────────────────────────────────────────────
-  isLoading = signal<boolean>(false);
+  // ─── État soumission ─────────────────────────────────────────────────────────
+  isLoading      = signal<boolean>(false);
   successMessage = signal<string | null>(null);
-  errorMessage = signal<string | null>(null);
+  errorMessage   = signal<string | null>(null);
+
+  // ─── UI signals ──────────────────────────────────────────────────────────────
+  /** Contrôle l'ouverture de la modale déclaration */
+  isModalOpen    = signal<boolean>(false);
+  /** Contrôle le menu mobile navbar */
+  mobileMenuOpen = signal<boolean>(false);
 
   // ─── Fichiers sélectionnés ───────────────────────────────────────────────────
-  // TypePieceDeclaration IDs (à adapter selon ta base)
-  // 1 = CNI Mère | 2 = Photo 4x4 | 3 = Certification de naissance
-  cniMere: File | null = null;
-  photo4x4: File | null = null;
+  cniMere              : File | null = null;
+  photo4x4             : File | null = null;
   certificationNaissance: File | null = null;
 
-  // Noms affichés dans le template
-  cniMereNom = signal<string>('Aucun fichier sélectionné');
-  photo4x4Nom = signal<string>('Aucun fichier sélectionné');
+  cniMereNom               = signal<string>('Aucun fichier sélectionné');
+  photo4x4Nom              = signal<string>('Aucun fichier sélectionné');
   certificationNaissanceNom = signal<string>('Aucun fichier sélectionné');
+
+  // ─── Données ─────────────────────────────────────────────────────────────────
+  listDeclaration          = signal<Declaration[]>([]);
+  numberOfDeclaration      = signal<number>(0);
+  numberOfDeclarationMale  = signal<number>(0);
+  numberOfDeclarationFemale= signal<number>(0);
 
   // ─── Formulaire ─────────────────────────────────────────────────────────────
   declarationFb!: FormGroup;
@@ -49,199 +57,154 @@ export class HopitalC  {
     private fb: FormBuilder,
     private etablissementService: EtablissementService,
     private acteService: ActeService,
-    private utilisateurService : UtilisateurService
+    private utilisateurService: UtilisateurService,
   ) {
     const idStored = localStorage.getItem('etablissement');
     this.idHopital.set(idStored ? parseInt(idStored) : 0);
 
     this.declarationFb = this.fb.group({
-      // ── Enfant ──────────────────────────────────────────────────────────────
-      nomEnfant:       new FormControl('', [Validators.required]),
-      prenomEnfant:    new FormControl('', [Validators.required]),
-      sexe:            new FormControl('', [Validators.required]),
-      dateNaissance:   new FormControl('', [Validators.required]),
-      lieuNaissance:   new FormControl('', [Validators.required]),
+      // Enfant
+      nomEnfant    : new FormControl('', [Validators.required]),
+      prenomEnfant : new FormControl('', [Validators.required]),
+      sexe         : new FormControl('', [Validators.required]),
+      dateNaissance: new FormControl('', [Validators.required]),
+      lieuNaissance: new FormControl('', [Validators.required]),
 
-      // ── Mère (Parent déclarant) ──────────────────────────────────────────────
-      nomParent:       new FormControl('', [Validators.required]),
-      prenomParent:    new FormControl('', [Validators.required]),
-      telephone:       new FormControl('', [Validators.required]),
-      profession:       new FormControl('', [Validators.required]),
-      email:           new FormControl('', [Validators.required, Validators.email]),
-      localisation:    new FormControl(''),
-      dateNaissanceM:    new FormControl(''),
-      lieuNaissanceM:    new FormControl(''),
+      // Mère
+      nomParent     : new FormControl('', [Validators.required]),
+      prenomParent  : new FormControl('', [Validators.required]),
+      telephone     : new FormControl('', [Validators.required]),
+      profession    : new FormControl('', [Validators.required]),
+      email         : new FormControl('', [Validators.required, Validators.email]),
+      localisation  : new FormControl(''),
+      dateNaissanceM: new FormControl(''),
+      lieuNaissanceM: new FormControl(''),
 
-      // ── Structure (injectée automatiquement) ────────────────────────────────
-      hopital:       new FormControl(),
-      mairie:       new FormControl(),
+      // Structure (injectée automatiquement)
+      hopital: new FormControl(),
+      mairie : new FormControl(),
     });
 
-    this.loadPage(); 
+    this.loadPage();
   }
+
+  // ─── Chargement ──────────────────────────────────────────────────────────────
 
   loadPage(): void {
     this.getHopitalById(this.idHopital());
     this.getAllSexes();
-    this.getAllDeclaration(); 
+    this.getAllDeclaration();
   }
-
-  // ─── Chargement des données de référence ────────────────────────────────────
 
   getHopitalById(id: number): void {
     this.etablissementService.getHopitalByid(id).subscribe({
       next: (response: Hopital) => {
         this.hopitalConnected.set(response);
-        // Injecter l'ID de la structure dans le formulaire
-        this.declarationFb.get('structure')?.setValue(response.id);
-        
+        this.declarationFb.get('hopital')?.setValue(response.id);
+        this.declarationFb.get('mairie')?.setValue(response.mairie?.id);
       },
-      error: (error:any) => {
-        console.error('Erreur chargement établissement :', error);
-      }
+      error: (err: any) => console.error('Erreur chargement établissement :', err),
     });
   }
 
-  listDeclaration = signal<Declaration[]>([]); 
-  getAllDeclaration(){
+  getAllDeclaration(): void {
     this.acteService.getAllDeclarationByHopital(this.idHopital()).subscribe({
-      next:(data:Declaration[])=>{
-        this.listDeclaration.set(data); 
-        this.getNumbers()
-      }, 
-      error:()=>{
-        console.log('Fecth list declaeation : failed');
-      }
-    }); 
+      next: (data: Declaration[]) => {
+        this.listDeclaration.set(data);
+        this.getNumbers();
+      },
+      error: () => console.error('Fetch liste déclarations : échec'),
+    });
   }
 
-  numberOfDeclaration = signal<number>(0); 
-  numberOfDeclarationMale = signal<number>(0); 
-  numberOfDeclarationFemale = signal<number>(0); 
-
-  getNumbers(){
-    this.numberOfDeclaration.set(this.listDeclaration().length); 
-
+  getNumbers(): void {
+    this.numberOfDeclaration.set(this.listDeclaration().length);
     this.numberOfDeclarationMale.set(
-      this.listDeclaration().filter(d => d.enfant.sexe.id==1).length
-    )
-
+      this.listDeclaration().filter(d => d.enfant.sexe.id === 1).length
+    );
     this.numberOfDeclarationFemale.set(
-      this.listDeclaration().filter(d => d.enfant.sexe.id==2).length
-    )
+      this.listDeclaration().filter(d => d.enfant.sexe.id === 2).length
+    );
   }
 
   getAllSexes(): void {
     this.utilisateurService.getAllSexe().subscribe({
-      next: (response: Sexe[]) => {
-        this.listeSexes.set(response);
-      },
-      error: (error) => {
-        console.error('Erreur chargement sexes :', error);
-      }
+      next: (response: Sexe[]) => this.listeSexes.set(response),
+      error: (err: any) => console.error('Erreur chargement sexes :', err),
     });
+  }
+
+  // ─── UI : modale & menu mobile ───────────────────────────────────────────────
+
+  ouvrirModal(): void {
+    this.errorMessage.set(null);
+    this.successMessage.set(null);
+    this.isModalOpen.set(true);
+  }
+
+  fermerModal(): void {
+    this.isModalOpen.set(false);
+    this.resetFormulaire();
+  }
+
+  toggleMobileMenu(): void {
+    this.mobileMenuOpen.update(v => !v);
   }
 
   // ─── Sélection des fichiers ──────────────────────────────────────────────────
 
-  /**
-   * Sélection de la CNI de la mère (image ou PDF)
-   */
   onSelectCniMere(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    if (input.files && input.files.length > 0) {
-      const file = input.files[0];
-      const typesAcceptes = ['image/jpeg', 'image/png', 'application/pdf'];
-
-      if (!typesAcceptes.includes(file.type)) {
-        this.errorMessage.set('CNI : format accepté — JPG, PNG ou PDF uniquement.');
-        this.cniMere = null;
-        this.cniMereNom.set('Aucun fichier sélectionné');
-        return;
-      }
-
-      this.cniMere = file;
-      this.cniMereNom.set(file.name);
-      this.errorMessage.set(null);
-    }
+    const file = this.extraireFile(event, ['image/jpeg','image/png','application/pdf']);
+    if (!file) { this.errorMessage.set('CNI : format accepté — JPG, PNG ou PDF.'); return; }
+    this.cniMere = file;
+    this.cniMereNom.set(file.name);
+    this.errorMessage.set(null);
   }
 
-  /**
-   * Sélection de la photo 4x4 (image uniquement)
-   */
   onSelectPhoto4x4(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    if (input.files && input.files.length > 0) {
-      const file = input.files[0];
-      const typesAcceptes = ['image/jpeg', 'image/png'];
-
-      if (!typesAcceptes.includes(file.type)) {
-        this.errorMessage.set('Photo 4x4 : format accepté — JPG ou PNG uniquement.');
-        this.photo4x4 = null;
-        this.photo4x4Nom.set('Aucun fichier sélectionné');
-        return;
-      }
-
-      this.photo4x4 = file;
-      this.photo4x4Nom.set(file.name);
-      this.errorMessage.set(null);
-    }
+    const file = this.extraireFile(event, ['image/jpeg','image/png']);
+    if (!file) { this.errorMessage.set('Photo 4×4 : format accepté — JPG ou PNG.'); return; }
+    this.photo4x4 = file;
+    this.photo4x4Nom.set(file.name);
+    this.errorMessage.set(null);
   }
 
-  /**
-   * Sélection de la certification de naissance (image ou PDF)
-   */
   onSelectCertificationNaissance(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    if (input.files && input.files.length > 0) {
-      const file = input.files[0];
-      const typesAcceptes = ['image/jpeg', 'image/png', 'application/pdf'];
-
-      if (!typesAcceptes.includes(file.type)) {
-        this.errorMessage.set('Certification : format accepté — JPG, PNG ou PDF uniquement.');
-        this.certificationNaissance = null;
-        this.certificationNaissanceNom.set('Aucun fichier sélectionné');
-        return;
-      }
-
-      this.certificationNaissance = file;
-      this.certificationNaissanceNom.set(file.name);
-      this.errorMessage.set(null);
-    }
+    const file = this.extraireFile(event, ['image/jpeg','image/png','application/pdf']);
+    if (!file) { this.errorMessage.set('Certification : format accepté — JPG, PNG ou PDF.'); return; }
+    this.certificationNaissance = file;
+    this.certificationNaissanceNom.set(file.name);
+    this.errorMessage.set(null);
   }
 
-  // ─── Suppression d'un fichier sélectionné ───────────────────────────────────
+  private extraireFile(event: Event, types: string[]): File | null {
+    const input = event.target as HTMLInputElement;
+    if (!input.files?.length) return null;
+    const file = input.files[0];
+    return types.includes(file.type) ? file : null;
+  }
+
+  // ─── Suppression fichiers ────────────────────────────────────────────────────
 
   supprimerCni(): void {
     this.cniMere = null;
     this.cniMereNom.set('Aucun fichier sélectionné');
   }
-
   supprimerPhoto(): void {
     this.photo4x4 = null;
     this.photo4x4Nom.set('Aucun fichier sélectionné');
   }
-
   supprimerCertification(): void {
     this.certificationNaissance = null;
     this.certificationNaissanceNom.set('Aucun fichier sélectionné');
   }
 
-  // ─── Validation avant envoi ──────────────────────────────────────────────────
+  // ─── Validation fichiers ─────────────────────────────────────────────────────
 
   private fichiersValides(): boolean {
-    if (!this.cniMere) {
-      this.errorMessage.set('Veuillez fournir la CNI de la mère.');
-      return false;
-    }
-    if (!this.photo4x4) {
-      this.errorMessage.set('Veuillez fournir la photo 4x4.');
-      return false;
-    }
-    if (!this.certificationNaissance) {
-      this.errorMessage.set('Veuillez fournir la certification de naissance.');
-      return false;
-    }
+    if (!this.cniMere)               { this.errorMessage.set('Veuillez fournir la CNI de la mère.');              return false; }
+    if (!this.photo4x4)              { this.errorMessage.set('Veuillez fournir la photo 4×4.');                   return false; }
+    if (!this.certificationNaissance){ this.errorMessage.set('Veuillez fournir la certification de naissance.');  return false; }
     return true;
   }
 
@@ -253,27 +216,17 @@ export class HopitalC  {
       this.errorMessage.set('Veuillez remplir tous les champs obligatoires.');
       return;
     }
-
     if (!this.fichiersValides()) return;
 
     this.isLoading.set(true);
     this.errorMessage.set(null);
     this.successMessage.set(null);
 
-    // Construction du DTO (partie JSON)
-    // typesPiecesJointes correspond aux IDs TypePieceDeclaration dans le même ordre que les fichiers
-    // Construction du FormData (JSON + fichiers)
-    this.declarationFb.controls['hopital'].setValue(this.hopitalConnected()?.id); 
-    this.declarationFb.controls['mairie'].setValue(this.hopitalConnected()?.mairie.id);
-    
-    const dto = {
-      ...this.declarationFb.value,
-      typesPiecesJointes: [1, 2, 3]  // 1=CNI | 2=Photo4x4 | 3=Certification
-    };
+    this.declarationFb.controls['hopital'].setValue(this.hopitalConnected()?.id);
+    this.declarationFb.controls['mairie'].setValue(this.hopitalConnected()?.mairie?.id);
 
-     
+    const dto = { ...this.declarationFb.value, typesPiecesJointes: [1, 2, 3] };
 
-    console.log('data a creer:', this.declarationFb.value)
     const formData = new FormData();
     formData.append('declaration', JSON.stringify(dto));
     formData.append('fichiers', this.cniMere!);
@@ -281,21 +234,20 @@ export class HopitalC  {
     formData.append('fichiers', this.certificationNaissance!);
 
     this.acteService.declarationActeNaissance(formData).subscribe({
-      next: (response:ServerResponse) => {
+      next: (response: ServerResponse) => {
         this.isLoading.set(false);
         if (response.status) {
-          this.loadPage(); 
           this.successMessage.set('Déclaration créée avec succès !');
-          this.resetFormulaire();
+          this.fermerModal();
+          this.loadPage();
         } else {
           this.errorMessage.set(response.message ?? 'Erreur lors de la création.');
         }
       },
-      error: (error) => {
+      error: (err: any) => {
         this.isLoading.set(false);
-        this.errorMessage.set('Erreur serveur : ' + (error?.error?.message ?? error.message));
-        console.error('Erreur création déclaration :', error);
-      }
+        this.errorMessage.set('Erreur serveur : ' + (err?.error?.message ?? err.message));
+      },
     });
   }
 
@@ -303,7 +255,6 @@ export class HopitalC  {
 
   resetFormulaire(): void {
     this.declarationFb.reset();
-    this.declarationFb.get('structure')?.setValue(this.idHopital());
     this.supprimerCni();
     this.supprimerPhoto();
     this.supprimerCertification();
@@ -313,6 +264,6 @@ export class HopitalC  {
 
   champInvalide(nom: string): boolean {
     const ctrl = this.declarationFb.get(nom);
-    return !!(ctrl && ctrl.invalid && ctrl.touched);
+    return !!(ctrl?.invalid && ctrl.touched);
   }
 }
