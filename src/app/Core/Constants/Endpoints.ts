@@ -9,6 +9,9 @@ const userBaseUrl = `${baseUrl}/user`;
 const permisBaseUrl = `${baseUrl}/permis`;
 
 export const eHAllSystemEndPoints ={
+    Ping:{
+        pong : `${authBaseUrl}/ping`
+    }, 
     Auth : {
         login : `${authBaseUrl}/login`
     }, 

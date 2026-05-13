@@ -21,4 +21,8 @@ export class AuthService {
   login(request :any):Observable<BasicAuthData>{
     return this.httpClient.post<BasicAuthData>(eHAllSystemEndPoints.Auth.login , request); 
   }
+
+  pingPong():Observable<string>{
+    return this.httpClient.get<string>(eHAllSystemEndPoints.Ping.pong); 
+  }
 }
