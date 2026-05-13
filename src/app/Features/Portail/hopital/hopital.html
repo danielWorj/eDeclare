@@ -1,3 +1,8 @@
+<!-- ══════════════════════════════════════════════════════════════════
+     SCRIPT Chart.js — à ajouter dans index.html si pas encore présent :
+     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+══════════════════════════════════════════════════════════════════ -->
+
 <!-- ── Topbar ─────────────────────────────────────────────────────── -->
 <div class="topbar">
   <span>Système d'État Civil Numérique</span>
@@ -88,58 +93,258 @@
     </div>
   }
 
-  <!-- KPI Cards -->
-  <div class="kpi-grid">
-    <div class="kpi-card">
-      <div class="kpi-icon">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-          <circle cx="9" cy="7" r="4"/>
-          <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-          <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-        </svg>
-      </div>
-      <div class="kpi-label">Total déclarations</div>
-      <div class="kpi-value">{{ numberOfDeclaration() }}</div>
-    </div>
+  <!-- ══════════════════════════════════════════════════════════════════
+       KPI CARDS — Ligne 2 (métriques complémentaires)
+  ══════════════════════════════════════════════════════════════════ -->
+  <div class="kpi-grid kpi-grid--secondary" style="margin-top:.75rem;">
 
-    <div class="kpi-card green">
-      <div class="kpi-icon">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="12" cy="12" r="10"/>
-          <line x1="10" y1="14" x2="14" y2="10"/><!-- ♂ -->
-        </svg>
-      </div>
-      <div class="kpi-label">Garçons</div>
-      <div class="kpi-value">{{ numberOfDeclarationMale() }}</div>
-    </div>
-
-    <div class="kpi-card gold">
-      <div class="kpi-icon">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="12" cy="12" r="10"/>
-        </svg>
-      </div>
-      <div class="kpi-label">Filles</div>
-      <div class="kpi-value">{{ numberOfDeclarationFemale() }}</div>
-    </div>
-
+    <!-- Établissement -->
     <div class="kpi-card accent">
-      <div class="kpi-icon">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-          <polyline points="14 2 14 8 20 8"/>
-        </svg>
+      <div class="kpi-card-top">
+        <div class="kpi-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+            <polyline points="9 22 9 12 15 12 15 22"/>
+          </svg>
+        </div>
+        <div class="kpi-badge kpi-badge--accent">Hôpital</div>
       </div>
-      <div class="kpi-label">Hôpital</div>
-      <div class="kpi-value" style="font-size:14px;margin-top:.4rem;">
-        {{ hopitalConnected()?.mairie?.nom ?? '—' }}
+      <div class="kpi-label">Établissement connecté</div>
+      <div class="kpi-value" style="font-size:14px;line-height:1.3;margin-top:.35rem;">
+        {{ hopitalConnected()?.nom ?? '—' }}
+      </div>
+      <div class="kpi-sub">{{ hopitalConnected()?.mairie?.nom ?? '—' }}</div>
+    </div>
+
+    <!-- Semaine -->
+    <div class="kpi-card">
+      <div class="kpi-card-top">
+        <div class="kpi-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+          </svg>
+        </div>
+        <div class="kpi-badge kpi-badge--blue">Semaine</div>
+      </div>
+      <div class="kpi-label">Déclarations cette semaine</div>
+      <div class="kpi-value">{{ numberOfDeclarationThisWeek() }}</div>
+      <div class="kpi-sub">Depuis lundi</div>
+    </div>
+
+    <!-- Jour le plus actif -->
+    <div class="kpi-card green">
+      <div class="kpi-card-top">
+        <div class="kpi-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <polyline points="12 6 12 12 16 14"/>
+          </svg>
+        </div>
+        <div class="kpi-badge kpi-badge--green">Pic</div>
+      </div>
+      <div class="kpi-label">Jour le plus actif</div>
+      <div class="kpi-value" style="font-size:16px;text-transform:capitalize;">{{ topDay() }}</div>
+      <div class="kpi-sub">Le plus de naissances enregistrées</div>
+    </div>
+
+    <!-- Ratio global -->
+    <div class="kpi-card blue-soft">
+      <div class="kpi-card-top">
+        <div class="kpi-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="20" x2="18" y2="10"/>
+            <line x1="12" y1="20" x2="12" y2="4"/>
+            <line x1="6" y1="20" x2="6" y2="14"/>
+          </svg>
+        </div>
+        <div class="kpi-badge kpi-badge--blue">Ratio</div>
+      </div>
+      <div class="kpi-label">Répartition par sexe</div>
+      <div class="kpi-value" style="font-size:14px;margin-top:.35rem;">
+        ♂ {{ ratioMale() }}% · ♀ {{ ratioFemale() }}%
+      </div>
+      <div class="kpi-sub">
+        <div class="kpi-progress-bar" style="margin-top:.3rem;">
+          <div class="kpi-progress-fill kpi-progress-fill--blue"
+               [style.width.%]="ratioMale()" style="height:6px;border-radius:3px 0 0 3px;"></div>
+          <div class="kpi-progress-fill kpi-progress-fill--red"
+               [style.width.%]="ratioFemale()" style="height:6px;border-radius:0 3px 3px 0;"></div>
+        </div>
       </div>
     </div>
+
+  </div>
+  <!-- ══════════════════════════════════════════════════════════════════
+       KPI CARDS — Ligne 1 (4 métriques principales)
+  ══════════════════════════════════════════════════════════════════ -->
+  <div class="kpi-grid">
+
+    <!-- Total déclarations -->
+    <div class="kpi-card">
+      <div class="kpi-card-top">
+        <div class="kpi-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+          </svg>
+        </div>
+        <div class="kpi-badge kpi-badge--blue">Total</div>
+      </div>
+      <div class="kpi-label">Déclarations enregistrées</div>
+      <div class="kpi-value">{{ numberOfDeclaration() }}</div>
+      <div class="kpi-sub">Depuis l'ouverture du portail</div>
+    </div>
+
+    <!-- Ce mois -->
+    <div class="kpi-card green">
+      <div class="kpi-card-top">
+        <div class="kpi-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+            <line x1="16" y1="2" x2="16" y2="6"/>
+            <line x1="8" y1="2" x2="8" y2="6"/>
+            <line x1="3" y1="10" x2="21" y2="10"/>
+          </svg>
+        </div>
+        <div class="kpi-badge kpi-badge--green">Mois</div>
+      </div>
+      <div class="kpi-label">Déclarations ce mois</div>
+      <div class="kpi-value">{{ numberOfDeclarationThisMonth() }}</div>
+      <div class="kpi-sub">{{ numberOfDeclarationThisWeek() }} cette semaine</div>
+    </div>
+
+    <!-- Garçons -->
+    <div class="kpi-card blue-soft">
+      <div class="kpi-card-top">
+        <div class="kpi-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="10" cy="14" r="5"/>
+            <line x1="19" y1="5" x2="14.54" y2="9.46"/>
+            <line x1="15" y1="5" x2="19" y2="5"/>
+            <line x1="19" y1="5" x2="19" y2="9"/>
+          </svg>
+        </div>
+        <div class="kpi-badge kpi-badge--blue">♂ Garçons</div>
+      </div>
+      <div class="kpi-label">Nouveau-nés masculins</div>
+      <div class="kpi-value">{{ numberOfDeclarationMale() }}</div>
+      <div class="kpi-sub">
+        <div class="kpi-progress-bar">
+          <div class="kpi-progress-fill kpi-progress-fill--blue"
+               [style.width.%]="ratioMale()"></div>
+        </div>
+        {{ ratioMale() }}% du total
+      </div>
+    </div>
+
+    <!-- Filles -->
+    <div class="kpi-card gold">
+      <div class="kpi-card-top">
+        <div class="kpi-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="8" r="5"/>
+            <line x1="12" y1="13" x2="12" y2="21"/>
+            <line x1="9" y1="18" x2="15" y2="18"/>
+          </svg>
+        </div>
+        <div class="kpi-badge kpi-badge--red">♀ Filles</div>
+      </div>
+      <div class="kpi-label">Nouveau-nées féminines</div>
+      <div class="kpi-value">{{ numberOfDeclarationFemale() }}</div>
+      <div class="kpi-sub">
+        <div class="kpi-progress-bar">
+          <div class="kpi-progress-fill kpi-progress-fill--red"
+               [style.width.%]="ratioFemale()"></div>
+        </div>
+        {{ ratioFemale() }}% du total
+      </div>
+    </div>
+
   </div>
 
-  <!-- Tableau des déclarations -->
-  <div class="card-panel">
+  
+
+  <!-- ══════════════════════════════════════════════════════════════════
+       GRAPHES
+  ══════════════════════════════════════════════════════════════════ -->
+  <div class="charts-grid" style="margin-top:1.5rem;">
+
+    <!-- Graphe 1 : Évolution temporelle -->
+    <div class="card-panel">
+      <div class="card-panel-header">
+        <div>
+          <div class="card-panel-title">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"
+                 style="margin-right:.4rem;vertical-align:middle;">
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+            </svg>
+            Évolution des déclarations
+          </div>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:.15rem;">
+            12 derniers mois — Total · Garçons · Filles
+          </div>
+        </div>
+      </div>
+      <div style="position:relative;height:260px;padding:.5rem 0;">
+        <canvas #chartEvolution></canvas>
+      </div>
+    </div>
+
+    <!-- Graphe 2 : Répartition par sexe (donut) -->
+    <div class="card-panel">
+      <div class="card-panel-header">
+        <div>
+          <div class="card-panel-title">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"
+                 style="margin-right:.4rem;vertical-align:middle;">
+              <path d="M21.21 15.89A10 10 0 1 1 8 2.83"/>
+              <path d="M22 12A10 10 0 0 0 12 2v10z"/>
+            </svg>
+            Répartition par sexe
+          </div>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:.15rem;">
+            Distribution globale des naissances enregistrées
+          </div>
+        </div>
+      </div>
+
+      <!-- Donut + légende textuelle centrée -->
+      <div style="display:flex;flex-direction:column;align-items:center;padding:.5rem 0;">
+        <div style="position:relative;height:220px;width:220px;">
+          <canvas #chartSexe></canvas>
+
+          <!-- Label central -->
+          <div style="position:absolute;inset:0;display:flex;flex-direction:column;
+                      align-items:center;justify-content:center;pointer-events:none;">
+            <span style="font-size:26px;font-weight:700;color:var(--text);">
+              {{ numberOfDeclaration() }}
+            </span>
+            <span style="font-size:11px;color:var(--text-muted);">déclarations</span>
+          </div>
+        </div>
+
+        <!-- Légende manuelle colorée -->
+        <div style="display:flex;gap:1.5rem;margin-top:.75rem;">
+          <div style="display:flex;align-items:center;gap:.4rem;font-size:12.5px;">
+            <span style="width:10px;height:10px;border-radius:50%;background:#2563eb;display:inline-block;"></span>
+            Garçons — <strong>{{ numberOfDeclarationMale() }}</strong>
+          </div>
+          <div style="display:flex;align-items:center;gap:.4rem;font-size:12.5px;">
+            <span style="width:10px;height:10px;border-radius:50%;background:#e8002d;display:inline-block;"></span>
+            Filles — <strong>{{ numberOfDeclarationFemale() }}</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════════
+       TABLEAU DES DÉCLARATIONS
+  ══════════════════════════════════════════════════════════════════ -->
+  <div class="card-panel" style="margin-top:1.5rem;">
     <div class="card-panel-header">
       <div>
         <div class="card-panel-title">Liste des déclarations</div>
@@ -181,12 +386,8 @@
         <tbody>
           @for (decl of listDeclaration(); track decl.id) {
             <tr>
-              <td>
-                <span class="decl-ref">DEC-{{ decl.id }}</span>
-              </td>
-              <td>
-                <span style="font-weight:600;">{{ decl.enfant.nom }} {{ decl.enfant.prenom }}</span>
-              </td>
+              <td><span class="decl-ref">DEC-{{ decl.id }}</span></td>
+              <td><span style="font-weight:600;">{{ decl.enfant.nom }} {{ decl.enfant.prenom }}</span></td>
               <td>
                 @if (decl.enfant.sexe.id === 1) {
                   <span class="badge-status draft badge-male">♂ Masculin</span>
@@ -201,9 +402,7 @@
                 </div>
                 <div style="font-size:11.5px;color:var(--text-muted);">{{ decl.mere?.telephone }}</div>
               </td>
-              <td>
-                <span class="badge-status pending">En attente</span>
-              </td>
+              <td><span class="badge-status pending">En attente</span></td>
               <td>
                 <div class="d-flex gap-1">
                   <span class="doc-badge" title="Photo">📷</span>
@@ -250,7 +449,7 @@
       </table>
     </div>
 
-    <!-- Vue cartes (mobile) - visible sur petits écrans uniquement -->
+    <!-- Vue cartes (mobile) -->
     <div class="cards-mobile">
       @for (decl of listDeclaration(); track decl.id) {
         <div class="decl-card-mobile">
@@ -321,7 +520,8 @@
       </div>
     </div>
   </div>
-</div>
+
+</div><!-- /hopital-main -->
 
 <!-- ── Footer ─────────────────────────────────────────────────────── -->
 <footer class="footer-main">
@@ -337,7 +537,7 @@
 <!-- ══════════════════════════════════════════════════════════════════
      MODALE : Nouvelle Déclaration de Naissance
 ══════════════════════════════════════════════════════════════════ -->
-<div class="modal-overlay" [class.open]="isModalOpen()">
+<div class="modal-overlay" [class.open]="isModalOpen()" (click)="fermerModal()">
   <div class="modal-box modal-xl" (click)="$event.stopPropagation()">
 
     <div class="modal-header">
@@ -369,8 +569,7 @@
         <div>
           <div class="form-section-title">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="12" cy="8" r="4"/>
-              <path d="M6 20v-2a6 6 0 0 1 12 0v2"/>
+              <circle cx="12" cy="8" r="4"/><path d="M6 20v-2a6 6 0 0 1 12 0v2"/>
             </svg>
             Informations sur l'enfant
           </div>
@@ -378,50 +577,37 @@
             <div class="form-field">
               <label class="form-label-main">Nom <span class="required">*</span></label>
               <input type="text" class="form-control-main" placeholder="Nom de famille"
-                     formControlName="nomEnfant"
-                     [class.is-invalid]="champInvalide('nomEnfant')">
-              @if (champInvalide('nomEnfant')) {
-                <span class="form-error">Le nom est requis</span>
-              }
+                     formControlName="nomEnfant" [class.is-invalid]="champInvalide('nomEnfant')">
+              @if (champInvalide('nomEnfant')) { <span class="form-error">Le nom est requis</span> }
             </div>
             <div class="form-field">
               <label class="form-label-main">Prénom(s) <span class="required">*</span></label>
               <input type="text" class="form-control-main" placeholder="Prénom(s)"
-                     formControlName="prenomEnfant"
-                     [class.is-invalid]="champInvalide('prenomEnfant')">
-              @if (champInvalide('prenomEnfant')) {
-                <span class="form-error">Le prénom est requis</span>
-              }
+                     formControlName="prenomEnfant" [class.is-invalid]="champInvalide('prenomEnfant')">
+              @if (champInvalide('prenomEnfant')) { <span class="form-error">Le prénom est requis</span> }
             </div>
             <div class="form-field">
               <label class="form-label-main">Sexe <span class="required">*</span></label>
               <select class="form-control-main" formControlName="sexe"
                       [class.is-invalid]="champInvalide('sexe')">
-                <option value="">— Sélectionner —</option>
+                <option [ngValue]="null">— Sélectionner —</option>
                 @for (s of listeSexes(); track s.id) {
-                  <option [value]="s.id">{{ s.libelle }}</option>
+                  <option [ngValue]="s.id">{{ s.libelle }}</option>
                 }
               </select>
-              @if (champInvalide('sexe')) {
-                <span class="form-error">Le sexe est requis</span>
-              }
+              @if (champInvalide('sexe')) { <span class="form-error">Le sexe est requis</span> }
             </div>
             <div class="form-field">
               <label class="form-label-main">Date de naissance <span class="required">*</span></label>
               <input type="date" class="form-control-main" formControlName="dateNaissance"
                      [class.is-invalid]="champInvalide('dateNaissance')">
-              @if (champInvalide('dateNaissance')) {
-                <span class="form-error">La date est requise</span>
-              }
+              @if (champInvalide('dateNaissance')) { <span class="form-error">La date est requise</span> }
             </div>
             <div class="form-field">
               <label class="form-label-main">Lieu de naissance <span class="required">*</span></label>
               <input type="text" class="form-control-main" placeholder="Ex : Douala"
-                     formControlName="lieuNaissance"
-                     [class.is-invalid]="champInvalide('lieuNaissance')">
-              @if (champInvalide('lieuNaissance')) {
-                <span class="form-error">Le lieu est requis</span>
-              }
+                     formControlName="lieuNaissance" [class.is-invalid]="champInvalide('lieuNaissance')">
+              @if (champInvalide('lieuNaissance')) { <span class="form-error">Le lieu est requis</span> }
             </div>
           </div>
         </div>
@@ -438,20 +624,14 @@
             <div class="form-field">
               <label class="form-label-main">Nom <span class="required">*</span></label>
               <input type="text" class="form-control-main" placeholder="Nom de famille"
-                     formControlName="nomParent"
-                     [class.is-invalid]="champInvalide('nomParent')">
-              @if (champInvalide('nomParent')) {
-                <span class="form-error">Le nom est requis</span>
-              }
+                     formControlName="nomParent" [class.is-invalid]="champInvalide('nomParent')">
+              @if (champInvalide('nomParent')) { <span class="form-error">Le nom est requis</span> }
             </div>
             <div class="form-field">
               <label class="form-label-main">Prénom(s) <span class="required">*</span></label>
               <input type="text" class="form-control-main" placeholder="Prénom(s)"
-                     formControlName="prenomParent"
-                     [class.is-invalid]="champInvalide('prenomParent')">
-              @if (champInvalide('prenomParent')) {
-                <span class="form-error">Le prénom est requis</span>
-              }
+                     formControlName="prenomParent" [class.is-invalid]="champInvalide('prenomParent')">
+              @if (champInvalide('prenomParent')) { <span class="form-error">Le prénom est requis</span> }
             </div>
             <div class="form-field">
               <label class="form-label-main">Date de naissance</label>
@@ -465,20 +645,14 @@
             <div class="form-field">
               <label class="form-label-main">Téléphone <span class="required">*</span></label>
               <input type="tel" class="form-control-main" placeholder="+237 6xx xx xx xx"
-                     formControlName="telephone"
-                     [class.is-invalid]="champInvalide('telephone')">
-              @if (champInvalide('telephone')) {
-                <span class="form-error">Le téléphone est requis</span>
-              }
+                     formControlName="telephone" [class.is-invalid]="champInvalide('telephone')">
+              @if (champInvalide('telephone')) { <span class="form-error">Le téléphone est requis</span> }
             </div>
             <div class="form-field">
               <label class="form-label-main">Email <span class="required">*</span></label>
               <input type="email" class="form-control-main" placeholder="email@exemple.com"
-                     formControlName="email"
-                     [class.is-invalid]="champInvalide('email')">
-              @if (champInvalide('email')) {
-                <span class="form-error">Email invalide</span>
-              }
+                     formControlName="email" [class.is-invalid]="champInvalide('email')">
+              @if (champInvalide('email')) { <span class="form-error">Email invalide</span> }
             </div>
             <div class="form-field form-field--span2">
               <label class="form-label-main">Domicile</label>
@@ -488,11 +662,8 @@
             <div class="form-field">
               <label class="form-label-main">Profession <span class="required">*</span></label>
               <input type="text" class="form-control-main" placeholder="Ex : Infirmière"
-                     formControlName="profession"
-                     [class.is-invalid]="champInvalide('profession')">
-              @if (champInvalide('profession')) {
-                <span class="form-error">La profession est requise</span>
-              }
+                     formControlName="profession" [class.is-invalid]="champInvalide('profession')">
+              @if (champInvalide('profession')) { <span class="form-error">La profession est requise</span> }
             </div>
           </div>
         </div>
@@ -539,8 +710,7 @@
             <div class="form-field">
               <label class="form-label-main">Photo 4×4 <span class="required">*</span></label>
               <div class="file-input-zone" [class.file-selected]="photo4x4">
-                <input type="file" accept="image/jpeg,image/png"
-                       (change)="onSelectPhoto4x4($event)">
+                <input type="file" accept="image/jpeg,image/png" (change)="onSelectPhoto4x4($event)">
                 <div class="file-input-icon">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <rect x="3" y="3" width="18" height="18" rx="2"/>
@@ -563,7 +733,7 @@
               </div>
             </div>
 
-            <!-- Certification de naissance -->
+            <!-- Certificat -->
             <div class="form-field">
               <label class="form-label-main">Certificat d'accouchement <span class="required">*</span></label>
               <div class="file-input-zone" [class.file-selected]="certificationNaissance">
@@ -582,7 +752,8 @@
                   <span class="file-input-filename">{{ certificationNaissanceNom() }}</span>
                 </div>
                 @if (certificationNaissance) {
-                  <button type="button" class="file-delete-btn" (click)="supprimerCertification(); $event.stopPropagation()">
+                  <button type="button" class="file-delete-btn"
+                          (click)="supprimerCertification(); $event.stopPropagation()">
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                       <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
                     </svg>
