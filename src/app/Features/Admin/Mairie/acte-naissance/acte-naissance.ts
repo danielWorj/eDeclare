@@ -1,22 +1,68 @@
-import { Component, signal, computed } from '@angular/core';
+import {
+  Component,
+  signal,
+  computed,
+  AfterViewInit,
+  OnDestroy,
+  effect,
+  ElementRef,
+  ViewChild,
+} from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
-import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { ActeService } from '../../../../Core/Service/Acte/acte-service';
 import { ActeNaissance } from '../../../../Core/Model/Acte/ActeNaissance';
 import { Declaration } from '../../../../Core/Model/Acte/Declaration';
+import {
+  Chart,
+  ChartConfiguration,
+  LineController,
+  BarController,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  Tooltip,
+  Legend,
+  Filler,
+} from 'chart.js';
 
+// Enregistrement des modules Chart.js nécessaires
+Chart.register(
+  LineController,
+  BarController,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  Tooltip,
+  Legend,
+  Filler,
+);
 
 @Component({
   selector: 'app-acte-naissance',
   standalone: true,
-  imports: [
-    CommonModule,         // DatePipe, NgClass, @if/@for natifs
-    ReactiveFormsModule,  // formGroup, formControlName, [formGroup]
-  ],
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './acte-naissance.html',
   styleUrl: './acte-naissance.css',
 })
-export class ActeNaissanceC {
+export class ActeNaissanceC implements AfterViewInit, OnDestroy {
+
+  // ── Références canvas pour Chart.js ──────────────────────────────────────
+  @ViewChild('chartActes')    chartActesRef!:    ElementRef<HTMLCanvasElement>;
+  @ViewChild('chartDecl')     chartDeclRef!:     ElementRef<HTMLCanvasElement>;
+
+  private chartActes: Chart | null = null;
+  private chartDecl:  Chart | null = null;
 
   // ── Identity ─────────────────────────────────────────────────────────────
   idMairie = signal<number>(0);
@@ -27,20 +73,20 @@ export class ActeNaissanceC {
   listDeclaration    = signal<Declaration[]>([]);
 
   // ── UI state signals ─────────────────────────────────────────────────────
-  isLoading          = signal(false);
-  isSubmitting       = signal(false);
-  successMessage     = signal('');
-  errorMessage       = signal('');
+  isLoading      = signal(false);
+  isSubmitting   = signal(false);
+  successMessage = signal('');
+  errorMessage   = signal('');
 
   // ── Search / pagination ───────────────────────────────────────────────────
-  searchTerm         = signal('');
-  currentPage        = signal(1);
-  readonly pageSize  = 10;
+  searchTerm        = signal('');
+  currentPage       = signal(1);
+  readonly pageSize = 10;
 
   // ── Modal visibility ─────────────────────────────────────────────────────
-  showModalAdd       = signal(false);
-  showModalView      = signal(false);
-  showModalEdit      = signal(false);
+  showModalAdd  = signal(false);
+  showModalView = signal(false);
+  showModalEdit = signal(false);
 
   // ── Fichiers — Création ───────────────────────────────────────────────────
   cniPere:      File | null = null;
@@ -66,8 +112,66 @@ export class ActeNaissanceC {
   });
 
   totalPages = computed(() => Math.max(1, Math.ceil(this.filteredList().length / this.pageSize)));
+  pages      = computed(() => Array.from({ length: this.totalPages() }, (_, i) => i + 1));
 
-  pages = computed(() => Array.from({ length: this.totalPages() }, (_, i) => i + 1));
+  // ── Métriques (KPI) ───────────────────────────────────────────────────────
+  /** Nombre total d'actes créés */
+  totalActes = computed(() => this.listActeNaissance().length);
+
+  /** Actes créés ce mois-ci */
+  actesDuMois = computed(() => {
+    const now   = new Date();
+    const month = now.getMonth();
+    const year  = now.getFullYear();
+    return this.listActeNaissance().filter(a => {
+      if (!a.date) return false;
+      const d = new Date(a.date);
+      return d.getMonth() === month && d.getFullYear() === year;
+    }).length;
+  });
+
+  /** Actes créés cette semaine (lun→dim) */
+  actesDeLaSemaine = computed(() => {
+    const now     = new Date();
+    const monday  = new Date(now);
+    monday.setDate(now.getDate() - ((now.getDay() + 6) % 7));
+    monday.setHours(0, 0, 0, 0);
+    return this.listActeNaissance().filter(a => {
+      if (!a.date) return false;
+      return new Date(a.date) >= monday;
+    }).length;
+  });
+
+  /** Nombre de déclarations en attente (non encore converties en acte) */
+  declarationsEnAttente = computed(() => {
+    const acteDeclarationIds = new Set(
+      this.listActeNaissance()
+        .map(a => a.declaration?.id)
+        .filter(Boolean),
+    );
+    return this.listDeclaration().filter(d => !acteDeclarationIds.has(d.id)).length;
+  });
+
+  // ── Données graphiques ────────────────────────────────────────────────────
+  /** Retourne {labels, data} regroupés par mois sur les 6 derniers mois */
+  private buildMonthlyStats(dates: string[]): { labels: string[]; data: number[] } {
+    const months: string[] = [];
+    const counts: number[] = [];
+    const now = new Date();
+
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const label = d.toLocaleDateString('fr-FR', { month: 'short', year: '2-digit' });
+      months.push(label);
+      const count = dates.filter(dateStr => {
+        if (!dateStr) return false;
+        const dd = new Date(dateStr);
+        return dd.getMonth() === d.getMonth() && dd.getFullYear() === d.getFullYear();
+      }).length;
+      counts.push(count);
+    }
+    return { labels: months, data: counts };
+  }
 
   // ── Forms ─────────────────────────────────────────────────────────────────
   acteNaissanceFb!: FormGroup;
@@ -78,14 +182,154 @@ export class ActeNaissanceC {
     this.idMairie.set(idStored ? parseInt(idStored) : 0);
     this.initForms();
     this.loadPage();
+
+    // Effet réactif : reconstruire les graphiques quand les données changent
+    effect(() => {
+      // lecture des signals pour déclencher l'effet
+      const actes = this.listActeNaissance();
+      const decls = this.listDeclaration();
+      // Timeout pour s'assurer que la vue est initialisée
+      setTimeout(() => this.buildCharts(), 0);
+    });
   }
 
+  // ── Lifecycle ─────────────────────────────────────────────────────────────
+  ngAfterViewInit(): void {
+    this.buildCharts();
+  }
+
+  ngOnDestroy(): void {
+    this.chartActes?.destroy();
+    this.chartDecl?.destroy();
+  }
+
+  // ── Construction des graphiques ───────────────────────────────────────────
+  private buildCharts(): void {
+    this.buildChartActes();
+    this.buildChartDeclarations();
+  }
+
+  private buildChartActes(): void {
+    if (!this.chartActesRef?.nativeElement) return;
+
+    const dates = this.listActeNaissance().map(a => a.date ?? '');
+    const { labels, data } = this.buildMonthlyStats(dates);
+
+    if (this.chartActes) {
+      this.chartActes.data.labels = labels;
+      (this.chartActes.data.datasets[0] as any).data = data;
+      this.chartActes.update();
+      return;
+    }
+
+    const config: ChartConfiguration = {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [
+          {
+            label: 'Actes de naissance',
+            data,
+            borderColor: '#003189',
+            backgroundColor: 'rgba(0,49,137,.10)',
+            borderWidth: 2.5,
+            pointBackgroundColor: '#003189',
+            pointRadius: 4,
+            tension: 0.4,
+            fill: true,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: ctx => ` ${ctx.parsed.y} acte(s)`,
+            },
+          },
+        },
+        scales: {
+          x: {
+            grid: { color: 'rgba(0,0,0,.05)' },
+            ticks: { font: { family: 'DM Sans', size: 11 } },
+          },
+          y: {
+            beginAtZero: true,
+            grid: { color: 'rgba(0,0,0,.05)' },
+            ticks: { stepSize: 1, font: { family: 'DM Sans', size: 11 } },
+          },
+        },
+      },
+    };
+
+    this.chartActes = new Chart(this.chartActesRef.nativeElement, config);
+  }
+
+  private buildChartDeclarations(): void {
+    if (!this.chartDeclRef?.nativeElement) return;
+
+    const dates = this.listDeclaration().map(d => d.date ?? '');
+    const { labels, data } = this.buildMonthlyStats(dates);
+
+    if (this.chartDecl) {
+      this.chartDecl.data.labels = labels;
+      (this.chartDecl.data.datasets[0] as any).data = data;
+      this.chartDecl.update();
+      return;
+    }
+
+    const config: ChartConfiguration = {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [
+          {
+            label: 'Déclarations',
+            data,
+            backgroundColor: 'rgba(200,168,75,.75)',
+            borderColor: '#c8a84b',
+            borderWidth: 1.5,
+            borderRadius: 6,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: ctx => ` ${ctx.parsed.y} déclaration(s)`,
+            },
+          },
+        },
+        scales: {
+          x: {
+            grid: { display: false },
+            ticks: { font: { family: 'DM Sans', size: 11 } },
+          },
+          y: {
+            beginAtZero: true,
+            grid: { color: 'rgba(0,0,0,.05)' },
+            ticks: { stepSize: 1, font: { family: 'DM Sans', size: 11 } },
+          },
+        },
+      },
+    };
+
+    this.chartDecl = new Chart(this.chartDeclRef.nativeElement, config);
+  }
+
+  // ── Form initialisation ───────────────────────────────────────────────────
   loadPage(): void {
     this.getAllActe();
     this.getAllDeclarationByMairie();
   }
 
-  // ── Form initialisation ───────────────────────────────────────────────────
   private initForms(): void {
     const pereGroup = () => ({
       nomPere:       new FormControl('', Validators.required),
@@ -159,22 +403,20 @@ export class ActeNaissanceC {
     this.showModalView.set(true);
   }
 
-  closeModalView(): void {
-    this.showModalView.set(false);
-  }
+  closeModalView(): void { this.showModalView.set(false); }
 
   openModalEdit(acte: ActeNaissance): void {
     this.acteSelected.set(acte);
     this.acteEditFb.patchValue({
-      id:            acte.id            ?? null,
-      date:          acte.date          ?? '',
+      id:            acte.id              ?? null,
+      date:          acte.date            ?? '',
       declaration:   acte.declaration?.id ?? null,
-      nomPere:       acte.pere?.nom       ?? '',
-      prenomPere:    acte.pere?.prenom    ?? '',
-      telephonePere: acte.pere?.telephone ?? '',
-      emailPere:     acte.pere?.email     ?? '',
+      nomPere:       acte.pere?.nom        ?? '',
+      prenomPere:    acte.pere?.prenom     ?? '',
+      telephonePere: acte.pere?.telephone  ?? '',
+      emailPere:     acte.pere?.email      ?? '',
       profession:    acte.pere?.profession ?? '',
-      domicile:      acte.pere?.domicile  ?? '',
+      domicile:      acte.pere?.domicile   ?? '',
       dateNaissance: acte.pere?.dateNaissance ?? '',
       lieuNaissance: acte.pere?.lieuNaissance ?? '',
     });
@@ -182,9 +424,7 @@ export class ActeNaissanceC {
     this.showModalEdit.set(true);
   }
 
-  closeModalEdit(): void {
-    this.showModalEdit.set(false);
-  }
+  closeModalEdit(): void { this.showModalEdit.set(false); }
 
   // ── Sélection fichiers ────────────────────────────────────────────────────
   onSelectCniPere(event: Event): void {
@@ -192,7 +432,6 @@ export class ActeNaissanceC {
     if (!input.files?.length) return;
     const file = input.files[0];
     const typesAcceptes = ['image/jpeg', 'image/png', 'application/pdf'];
-
     if (!typesAcceptes.includes(file.type)) {
       this.notify('error', 'CNI : format accepté — JPG, PNG ou PDF uniquement.');
       this.supprimerCniPere();
@@ -208,7 +447,6 @@ export class ActeNaissanceC {
     if (!input.files?.length) return;
     const file = input.files[0];
     const typesAcceptes = ['image/jpeg', 'image/png'];
-
     if (!typesAcceptes.includes(file.type)) {
       this.notify('error', 'Photo 4×4 : format accepté — JPG ou PNG uniquement.');
       this.supprimerPhoto4x4Pere();
@@ -252,12 +490,7 @@ export class ActeNaissanceC {
     if (!this.fichiersValides()) return;
 
     this.isSubmitting.set(true);
-
-    const dto = {
-      ...this.acteNaissanceFb.value,
-      typesPiecesJointes: [1, 2],
-    };
-
+    const dto = { ...this.acteNaissanceFb.value, typesPiecesJointes: [1, 2] };
     const formData = new FormData();
     formData.append('acte', JSON.stringify(dto));
     formData.append('fichiers', this.cniPere!);
@@ -333,8 +566,8 @@ export class ActeNaissanceC {
     this.acteService.downloadActeNaissance(acte.id!).subscribe({
       next: (blob: Blob) => {
         const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
+        const a   = document.createElement('a');
+        a.href    = url;
         a.download = `acte_naissance_${acte.numeroActe}.pdf`;
         a.click();
         URL.revokeObjectURL(url);

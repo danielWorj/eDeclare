@@ -60,7 +60,7 @@ export const routes: Routes = [
             }, 
             { 
                 path: 'declaration', 
-                loadComponent: () => import('./Features/Admin/Parent/declaration/declaration').then(m => m.Declaration) 
+                loadComponent: () => import('./Features/Admin/Parent/declaration/declaration').then(m => m.DeclarationC) 
             },
             { 
                 path: 'rdv', 

@@ -27,7 +27,7 @@
      ══════════════════════════════════════════════════════════════════════ -->
 <div class="dash-section" id="section-naissances">
 
-  <!-- En-tête -->
+  <!-- ── En-tête ───────────────────────────────────────────────────────── -->
   <div class="page-header">
     <div class="page-header-left">
       <div class="page-eyebrow">État civil</div>
@@ -42,7 +42,194 @@
     </button>
   </div>
 
-  <!-- ── Barre de recherche ─────────────────────────────────────────────── -->
+  <!-- ══════════════════════════════════════════════════════════════════════
+       CARTES MÉTRIQUES (KPI)
+       ══════════════════════════════════════════════════════════════════════ -->
+  <div class="kpi-grid mb-4">
+
+    <!-- Total actes -->
+    <div class="kpi-card kpi-card--blue">
+      <div class="kpi-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+          <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+        </svg>
+      </div>
+      <div class="kpi-body">
+        <div class="kpi-value">{{ totalActes() }}</div>
+        <div class="kpi-label">Total actes créés</div>
+      </div>
+      <div class="kpi-trend kpi-trend--neutral">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/>
+          <line x1="8" y1="12" x2="16" y2="12"/>
+        </svg>
+        Cumul total
+      </div>
+    </div>
+
+    <!-- Actes ce mois -->
+    <div class="kpi-card kpi-card--green">
+      <div class="kpi-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+          <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
+          <line x1="3" y1="10" x2="21" y2="10"/>
+        </svg>
+      </div>
+      <div class="kpi-body">
+        <div class="kpi-value">{{ actesDuMois() }}</div>
+        <div class="kpi-label">Actes ce mois</div>
+      </div>
+      <div class="kpi-trend kpi-trend--up">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+          <polyline points="17 6 23 6 23 12"/>
+        </svg>
+        Mois en cours
+      </div>
+    </div>
+
+    <!-- Actes cette semaine -->
+    <div class="kpi-card kpi-card--gold">
+      <div class="kpi-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <polyline points="12 6 12 12 16 14"/>
+        </svg>
+      </div>
+      <div class="kpi-body">
+        <div class="kpi-value">{{ actesDeLaSemaine() }}</div>
+        <div class="kpi-label">Actes cette semaine</div>
+      </div>
+      <div class="kpi-trend kpi-trend--neutral">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+        </svg>
+        7 derniers jours
+      </div>
+    </div>
+
+    <!-- Déclarations en attente -->
+    <div class="kpi-card kpi-card--rose">
+      <div class="kpi-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M22 17H2a3 3 0 0 0 3-3V9a7 7 0 0 1 14 0v5a3 3 0 0 0 3 3z"/>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+        </svg>
+      </div>
+      <div class="kpi-body">
+        <div class="kpi-value">{{ declarationsEnAttente() }}</div>
+        <div class="kpi-label">Déclarations en attente</div>
+      </div>
+      <div class="kpi-trend kpi-trend--alert">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="12"/>
+          <line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        Sans acte associé
+      </div>
+    </div>
+
+    <!-- Total déclarations -->
+    <div class="kpi-card kpi-card--blue">
+      <div class="kpi-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+      </div>
+      <div class="kpi-body">
+        <div class="kpi-value">{{ listDeclaration().length }}</div>
+        <div class="kpi-label">Déclarations reçues</div>
+      </div>
+      <div class="kpi-trend kpi-trend--neutral">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/>
+          <line x1="8" y1="18" x2="21" y2="18"/>
+          <line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/>
+          <line x1="3" y1="18" x2="3.01" y2="18"/>
+        </svg>
+        Total reçues
+      </div>
+    </div>
+
+    <!-- Résultats filtrés -->
+    <div class="kpi-card kpi-card--green">
+      <div class="kpi-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+      </div>
+      <div class="kpi-body">
+        <div class="kpi-value">{{ filteredList().length }}</div>
+        <div class="kpi-label">Résultats filtrés</div>
+      </div>
+      <div class="kpi-trend kpi-trend--neutral">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+        </svg>
+        Selon recherche
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       GRAPHIQUES D'ÉVOLUTION
+       ══════════════════════════════════════════════════════════════════════ -->
+  <div class="charts-row mb-4">
+
+    <!-- Graphique : Évolution des actes de naissance -->
+    <div class="card-panel chart-panel">
+      <div class="card-panel-header">
+        <div>
+          <div class="card-panel-title">Évolution des actes de naissance</div>
+          <div style="font-size:11.5px;color:var(--text-muted);margin-top:2px;">
+            Actes enregistrés par mois (6 derniers mois)
+          </div>
+        </div>
+        <div class="chart-badge chart-badge--blue">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+          </svg>
+          Ligne
+        </div>
+      </div>
+      <div class="chart-wrapper">
+        <canvas #chartActes></canvas>
+      </div>
+    </div>
+
+    <!-- Graphique : Évolution des déclarations -->
+    <div class="card-panel chart-panel">
+      <div class="card-panel-header">
+        <div>
+          <div class="card-panel-title">Évolution des déclarations</div>
+          <div style="font-size:11.5px;color:var(--text-muted);margin-top:2px;">
+            Déclarations reçues par mois (6 derniers mois)
+          </div>
+        </div>
+        <div class="chart-badge chart-badge--gold">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="18" y="3" width="4" height="18"/><rect x="10" y="8" width="4" height="13"/>
+            <rect x="2" y="13" width="4" height="8"/>
+          </svg>
+          Barres
+        </div>
+      </div>
+      <div class="chart-wrapper">
+        <canvas #chartDecl></canvas>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── Barre de recherche ───────────────────────────────────────────────── -->
   <div class="card-panel mb-4">
     <div class="card-panel-body" style="padding:1rem 1.5rem;">
       <div class="filters-row">
@@ -57,7 +244,7 @@
     </div>
   </div>
 
-  <!-- ── Tableau actes ───────────────────────────────────────────────────── -->
+  <!-- ── Tableau des actes ────────────────────────────────────────────────── -->
   <div class="card-panel">
     <div class="card-panel-header">
       <div class="card-panel-title">Liste des actes de naissance</div>
@@ -66,7 +253,6 @@
       </span>
     </div>
 
-    <!-- Spinner de chargement -->
     @if (isLoading()) {
       <div class="spinner-wrapper">
         <div class="spinner"></div>
@@ -82,6 +268,8 @@
               <th>N° Acte</th>
               <th>Enfant</th>
               <th>Père</th>
+              <th>Mère</th>
+              <th>Établissement</th>
               <th>Date d'émission</th>
               <th>Actions</th>
             </tr>
@@ -97,6 +285,10 @@
                     {{ acte.declaration?.enfant?.prenom ?? '' }}
                     {{ acte.declaration?.enfant?.nom ?? '' }}
                   </span>
+                  <br>
+                  <small style="color:var(--text-muted);font-size:11px;">
+                    {{ acte.declaration?.enfant?.dateNaissance | date:'dd/MM/yyyy' }}
+                  </small>
                 </td>
                 <td>
                   @if (acte.pere) {
@@ -109,6 +301,12 @@
                   } @else {
                     <span style="font-size:13px;color:var(--text-muted);font-style:italic;">— Non renseigné</span>
                   }
+                </td>
+                <td style="font-size:13px;color:var(--text-muted);">
+                  {{ acte.declaration?.mere?.prenom }} {{ acte.declaration?.mere?.nom }}
+                </td>
+                <td style="font-size:12px;color:var(--text-muted);">
+                  {{ acte.declaration?.hopital?.nom ?? '—' }}
                 </td>
                 <td class="td-muted">
                   {{ acte.date ? (acte.date | date:'dd MMM yyyy') : '—' }}
@@ -152,7 +350,7 @@
               </tr>
             } @empty {
               <tr>
-                <td colspan="5" class="table-empty">
+                <td colspan="7" class="table-empty">
                   <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--border)" stroke-width="1.5">
                     <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
                     <polyline points="14 2 14 8 20 8"/>
@@ -165,59 +363,81 @@
         </table>
       </div>
 
-      <!-- Pagination -->
-      <div class="table-pagination">
-        <span style="font-size:12.5px;color:var(--text-muted);">
-          {{ filteredList().length }} résultat(s)
-        </span>
-        <div class="d-flex gap-1">
-          <button class="btn-ghost"
-                  style="padding:.35rem .65rem;"
-                  [disabled]="currentPage() === 1"
-                  (click)="setPage(currentPage() - 1)">‹</button>
-
-          @for (p of pages(); track p) {
-            <button [class]="currentPage() === p ? 'btn-primary-main' : 'btn-ghost'"
-                    style="padding:.35rem .75rem;font-size:12.5px;"
-                    (click)="setPage(p)">{{ p }}</button>
-          }
-
-          <button class="btn-ghost"
-                  style="padding:.35rem .65rem;"
-                  [disabled]="currentPage() === totalPages()"
-                  (click)="setPage(currentPage() + 1)">›</button>
-        </div>
+      <!-- Vue cartes (mobile) -->
+      <div class="cards-mobile">
+        @for (acte of paginatedList(); track acte.id) {
+          <div class="mobile-card" (click)="openModalView(acte)">
+            <div class="mobile-card-header">
+              <span class="decl-ref">{{ acte.numeroActe ?? '—' }}</span>
+              <span class="td-muted" style="font-size:12px;">{{ acte.date | date:'dd/MM/yyyy' }}</span>
+            </div>
+            <div class="mobile-card-body">
+              <div style="font-weight:600;">
+                {{ acte.declaration?.enfant?.prenom }} {{ acte.declaration?.enfant?.nom }}
+              </div>
+              <div style="font-size:12px;color:var(--text-muted);">
+                Père : {{ acte.pere?.prenom }} {{ acte.pere?.nom }}
+              </div>
+            </div>
+            <div class="mobile-card-actions" (click)="$event.stopPropagation()">
+              <button class="btn-icon" (click)="openModalView(acte)">Voir</button>
+              <button class="btn-icon" (click)="openModalEdit(acte)">Modifier</button>
+              <button class="btn-ghost" style="font-size:11px;padding:.3rem .55rem;" (click)="downloadActe(acte,$event)">PDF</button>
+              <button class="btn-icon btn-icon--danger" (click)="deleteActe(acte,$event)">Suppr.</button>
+            </div>
+          </div>
+        } @empty {
+          <div class="table-empty">
+            <p>Aucun acte trouvé</p>
+          </div>
+        }
       </div>
 
-    }<!-- /fin @else isLoading -->
-  </div>
-</div>
+      <!-- Pagination -->
+      <div class="table-pagination">
+        <button class="btn-page" [disabled]="currentPage() === 1" (click)="setPage(currentPage() - 1)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="15 18 9 12 15 6"/>
+          </svg>
+        </button>
+        @for (p of pages(); track p) {
+          <button class="btn-page" [class.btn-page--active]="p === currentPage()" (click)="setPage(p)">
+            {{ p }}
+          </button>
+        }
+        <button class="btn-page" [disabled]="currentPage() === totalPages()" (click)="setPage(currentPage() + 1)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
+        </button>
+      </div>
+    }
+
+  </div><!-- /card-panel tableau -->
+
+</div><!-- /dash-section -->
 
 
 <!-- ══════════════════════════════════════════════════════════════════════
      MODAL — CRÉATION
      ══════════════════════════════════════════════════════════════════════ -->
 @if (showModalAdd()) {
-  <div class="modal-backdrop" (click)="closeModalAdd()">
+  <div class="modal-overlay" (click)="closeModalAdd()">
     <div class="modal-box modal-box--lg" (click)="$event.stopPropagation()" role="dialog" aria-modal="true">
 
-      <!-- En-tête modal -->
       <div class="modal-header">
         <h2 class="modal-title">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-            <polyline points="14 2 14 8 20 8"/>
-            <line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/>
+            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
           </svg>
-          Nouvel acte de naissance
+          Créer un acte de naissance
         </h2>
-        <button class="modal-close" (click)="closeModalAdd()" aria-label="Fermer">✕</button>
+        <button class="modal-close" (click)="closeModalAdd()">✕</button>
       </div>
 
-      <!-- Corps du formulaire -->
       <div class="modal-body" [formGroup]="acteNaissanceFb">
 
-        <!-- Déclaration + date -->
+        <!-- Section : Informations générales -->
         <div class="form-section">
           <div class="form-section-title">Informations générales</div>
           <div class="form-grid form-grid--2">
@@ -228,7 +448,9 @@
                       [class.is-invalid]="ctrl(acteNaissanceFb,'declaration').invalid && ctrl(acteNaissanceFb,'declaration').touched">
                 <option [ngValue]="null" disabled>— Sélectionner une déclaration —</option>
                 @for (decl of listDeclaration(); track decl.id) {
-                  <option [ngValue]="decl.id">{{ decl.enfant.nom }} {{ decl.enfant.prenom }}</option>
+                  <option [ngValue]="decl.id">
+                    {{ decl.enfant.nom }} {{ decl.enfant.prenom }}
+                  </option>
                 }
               </select>
               @if (ctrl(acteNaissanceFb,'declaration').invalid && ctrl(acteNaissanceFb,'declaration').touched) {
@@ -248,7 +470,7 @@
           </div>
         </div>
 
-        <!-- Informations père -->
+        <!-- Section : Informations du père -->
         <div class="form-section">
           <div class="form-section-title">Informations du père</div>
           <div class="form-grid form-grid--2">
@@ -294,7 +516,7 @@
 
             <div class="form-group">
               <label class="form-label form-label--required">Profession</label>
-              <input type="text" class="form-control-main" formControlName="profession" placeholder="Profession"
+              <input type="text" class="form-control-main" formControlName="profession" placeholder="Ex. : Ingénieur"
                      [class.is-invalid]="ctrl(acteNaissanceFb,'profession').invalid && ctrl(acteNaissanceFb,'profession').touched">
               @if (ctrl(acteNaissanceFb,'profession').invalid && ctrl(acteNaissanceFb,'profession').touched) {
                 <div class="form-error">Ce champ est obligatoire.</div>
@@ -303,7 +525,7 @@
 
             <div class="form-group">
               <label class="form-label form-label--required">Domicile</label>
-              <input type="text" class="form-control-main" formControlName="domicile" placeholder="Adresse de domicile"
+              <input type="text" class="form-control-main" formControlName="domicile" placeholder="Adresse de résidence"
                      [class.is-invalid]="ctrl(acteNaissanceFb,'domicile').invalid && ctrl(acteNaissanceFb,'domicile').touched">
               @if (ctrl(acteNaissanceFb,'domicile').invalid && ctrl(acteNaissanceFb,'domicile').touched) {
                 <div class="form-error">Ce champ est obligatoire.</div>
@@ -321,7 +543,7 @@
 
             <div class="form-group">
               <label class="form-label form-label--required">Lieu de naissance</label>
-              <input type="text" class="form-control-main" formControlName="lieuNaissance" placeholder="Lieu de naissance"
+              <input type="text" class="form-control-main" formControlName="lieuNaissance" placeholder="Ville / Région"
                      [class.is-invalid]="ctrl(acteNaissanceFb,'lieuNaissance').invalid && ctrl(acteNaissanceFb,'lieuNaissance').touched">
               @if (ctrl(acteNaissanceFb,'lieuNaissance').invalid && ctrl(acteNaissanceFb,'lieuNaissance').touched) {
                 <div class="form-error">Ce champ est obligatoire.</div>
@@ -331,67 +553,54 @@
           </div>
         </div>
 
-        <!-- Pièces justificatives -->
+        <!-- Section : Pièces jointes -->
         <div class="form-section">
-          <div class="form-section-title">Pièces justificatives</div>
+          <div class="form-section-title">Pièces jointes du père</div>
           <div class="form-grid form-grid--2">
 
             <!-- CNI Père -->
             <div class="form-group">
               <label class="form-label form-label--required">CNI du père</label>
-              <div class="file-upload-zone" [class.file-upload-zone--filled]="cniPere">
-                <input type="file" id="cniPereInput" accept=".jpg,.jpeg,.png,.pdf"
-                       (change)="onSelectCniPere($event)" style="display:none">
-                @if (!cniPere) {
-                  <label for="cniPereInput" class="file-upload-label">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                      <polyline points="17 8 12 3 7 8"/>
-                      <line x1="12" y1="3" x2="12" y2="15"/>
-                    </svg>
-                    <span>Cliquer pour sélectionner</span>
-                    <span class="file-hint">JPG, PNG ou PDF</span>
-                  </label>
-                } @else {
-                  <div class="file-selected">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                      <polyline points="14 2 14 8 20 8"/>
-                    </svg>
-                    <span class="file-name">{{ cniPereNom() }}</span>
-                    <button type="button" class="file-remove" (click)="supprimerCniPere()" title="Supprimer">✕</button>
-                  </div>
-                }
+              <div class="file-drop-zone">
+                <label class="file-label" for="input-cni-add">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="17 8 12 3 7 8"/>
+                    <line x1="12" y1="3" x2="12" y2="15"/>
+                  </svg>
+                  <span>Choisir un fichier (JPG, PNG, PDF)</span>
+                </label>
+                <input id="input-cni-add" type="file" accept=".jpg,.jpeg,.png,.pdf" class="file-input-hidden"
+                       (change)="onSelectCniPere($event)">
+                <div class="file-name-row">
+                  <span class="file-name">{{ cniPereNom() }}</span>
+                  @if (cniPere) {
+                    <button type="button" class="file-remove" (click)="supprimerCniPere()">✕</button>
+                  }
+                </div>
               </div>
             </div>
 
             <!-- Photo 4×4 Père -->
             <div class="form-group">
-              <label class="form-label form-label--required">Photo d'identité 4×4 (père)</label>
-              <div class="file-upload-zone" [class.file-upload-zone--filled]="photo4x4Pere">
-                <input type="file" id="photoInput" accept=".jpg,.jpeg,.png"
-                       (change)="onSelectPhoto4x4Pere($event)" style="display:none">
-                @if (!photo4x4Pere) {
-                  <label for="photoInput" class="file-upload-label">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                      <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-                      <circle cx="8.5" cy="8.5" r="1.5"/>
-                      <polyline points="21 15 16 10 5 21"/>
-                    </svg>
-                    <span>Cliquer pour sélectionner</span>
-                    <span class="file-hint">JPG ou PNG uniquement</span>
-                  </label>
-                } @else {
-                  <div class="file-selected">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-                      <circle cx="8.5" cy="8.5" r="1.5"/>
-                      <polyline points="21 15 16 10 5 21"/>
-                    </svg>
-                    <span class="file-name">{{ photo4x4PereNom() }}</span>
-                    <button type="button" class="file-remove" (click)="supprimerPhoto4x4Pere()" title="Supprimer">✕</button>
-                  </div>
-                }
+              <label class="form-label form-label--required">Photo d'identité 4×4</label>
+              <div class="file-drop-zone">
+                <label class="file-label" for="input-photo-add">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                    <circle cx="8.5" cy="8.5" r="1.5"/>
+                    <polyline points="21 15 16 10 5 21"/>
+                  </svg>
+                  <span>Choisir une photo (JPG, PNG)</span>
+                </label>
+                <input id="input-photo-add" type="file" accept=".jpg,.jpeg,.png" class="file-input-hidden"
+                       (change)="onSelectPhoto4x4Pere($event)">
+                <div class="file-name-row">
+                  <span class="file-name">{{ photo4x4PereNom() }}</span>
+                  @if (photo4x4Pere) {
+                    <button type="button" class="file-remove" (click)="supprimerPhoto4x4Pere()">✕</button>
+                  }
+                </div>
               </div>
             </div>
 
@@ -400,15 +609,12 @@
 
       </div><!-- /modal-body -->
 
-      <!-- Pied de modal -->
       <div class="modal-footer">
-        <button class="btn-outline-main" (click)="closeModalAdd()" [disabled]="isSubmitting()">
-          Annuler
-        </button>
+        <button class="btn-outline-main" (click)="closeModalAdd()" [disabled]="isSubmitting()">Annuler</button>
         <button class="btn-primary-main" (click)="createActe()" [disabled]="isSubmitting()">
           @if (isSubmitting()) {
             <span class="btn-spinner"></span>
-            Création en cours…
+            Création…
           } @else {
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
               <polyline points="20 6 9 17 4 12"/>
@@ -424,77 +630,169 @@
 
 
 <!-- ══════════════════════════════════════════════════════════════════════
-     MODAL — VISUALISATION
+     MODAL — CONSULTATION
      ══════════════════════════════════════════════════════════════════════ -->
 @if (showModalView() && acteSelected()) {
-  <div class="modal-backdrop" (click)="closeModalView()">
-    <div class="modal-box" (click)="$event.stopPropagation()" role="dialog" aria-modal="true">
+  <div class="modal-overlay" (click)="closeModalView()">
+    <div class="modal-box modal-box--lg" (click)="$event.stopPropagation()" role="dialog" aria-modal="true">
 
-      <div class="modal-header">
+      <div class="modal-header modal-header--view">
         <h2 class="modal-title">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
             <circle cx="12" cy="12" r="3"/>
           </svg>
-          Détails de l'acte
+          Acte N° {{ acteSelected()!.numeroActe ?? '—' }}
         </h2>
         <button class="modal-close" (click)="closeModalView()">✕</button>
       </div>
 
       <div class="modal-body">
-        <div class="detail-grid">
 
-          <div class="detail-item">
-            <span class="detail-label">N° Acte</span>
-            <span class="detail-value decl-ref">{{ acteSelected()!.numeroActe ?? '—' }}</span>
+        <!-- Enfant -->
+        <div class="recap-section">
+          <div class="recap-header">
+            <div class="recap-header-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+              </svg>
+            </div>
+            <h3>Enfant</h3>
           </div>
-
-          <div class="detail-item">
-            <span class="detail-label">Date d'émission</span>
-            <span class="detail-value">
-              {{ acteSelected()!.date ? (acteSelected()!.date | date:'dd MMMM yyyy') : '—' }}
-            </span>
+          <div class="recap-body">
+            <div class="recap-grid">
+              <div class="recap-field">
+                <span class="recap-field-label">Prénom</span>
+                <span class="recap-field-value">{{ acteSelected()!.declaration?.enfant?.prenom ?? '—' }}</span>
+              </div>
+              <div class="recap-field">
+                <span class="recap-field-label">Nom</span>
+                <span class="recap-field-value">{{ acteSelected()!.declaration?.enfant?.nom ?? '—' }}</span>
+              </div>
+              <div class="recap-field">
+                <span class="recap-field-label">Date de naissance</span>
+                <span class="recap-field-value">
+                  {{ acteSelected()!.declaration?.enfant?.dateNaissance | date:'dd/MM/yyyy' }}
+                </span>
+              </div>
+            </div>
           </div>
-
-          <div class="detail-item detail-item--full">
-            <span class="detail-label">Enfant</span>
-            <span class="detail-value" style="font-weight:600;">
-              {{ acteSelected()!.declaration?.enfant?.prenom ?? '' }}
-              {{ acteSelected()!.declaration?.enfant?.nom ?? '' }}
-            </span>
-          </div>
-
-          @if (acteSelected()!.pere) {
-            <div class="detail-item">
-              <span class="detail-label">Père</span>
-              <span class="detail-value">
-                {{ acteSelected()!.pere?.prenom }} {{ acteSelected()!.pere?.nom }}
-              </span>
-            </div>
-            <div class="detail-item">
-              <span class="detail-label">Téléphone père</span>
-              <span class="detail-value">{{ acteSelected()!.pere?.telephone ?? '—' }}</span>
-            </div>
-            <div class="detail-item">
-              <span class="detail-label">Email père</span>
-              <span class="detail-value">{{ acteSelected()!.pere?.email ?? '—' }}</span>
-            </div>
-            <div class="detail-item">
-              <span class="detail-label">Profession</span>
-              <span class="detail-value">{{ acteSelected()!.pere?.profession ?? '—' }}</span>
-            </div>
-          } @else {
-            <div class="detail-item detail-item--full">
-              <span class="detail-label">Père</span>
-              <span class="detail-value" style="font-style:italic;color:var(--text-muted);">Non renseigné</span>
-            </div>
-          }
-
         </div>
-      </div>
+
+        <!-- Père -->
+        <div class="recap-section" style="margin-top:1rem;">
+          <div class="recap-header" style="background:var(--primary-light);">
+            <div class="recap-header-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+              </svg>
+            </div>
+            <h3>Père</h3>
+          </div>
+          <div class="recap-body">
+            <div class="recap-grid">
+              <div class="recap-field">
+                <span class="recap-field-label">Nom complet</span>
+                <span class="recap-field-value">{{ acteSelected()!.pere?.prenom }} {{ acteSelected()!.pere?.nom }}</span>
+              </div>
+              <div class="recap-field">
+                <span class="recap-field-label">Téléphone</span>
+                <span class="recap-field-value">{{ acteSelected()!.pere?.telephone ?? '—' }}</span>
+              </div>
+              <div class="recap-field">
+                <span class="recap-field-label">Email</span>
+                <span class="recap-field-value">{{ acteSelected()!.pere?.email ?? '—' }}</span>
+              </div>
+              <div class="recap-field">
+                <span class="recap-field-label">Profession</span>
+                <span class="recap-field-value">{{ acteSelected()!.pere?.profession ?? '—' }}</span>
+              </div>
+              <div class="recap-field">
+                <span class="recap-field-label">Domicile</span>
+                <span class="recap-field-value">{{ acteSelected()!.pere?.domicile ?? '—' }}</span>
+              </div>
+              <div class="recap-field">
+                <span class="recap-field-label">Né(e) le</span>
+                <span class="recap-field-value">
+                  {{ acteSelected()!.pere?.dateNaissance | date:'dd/MM/yyyy' }}
+                  à {{ acteSelected()!.pere?.lieuNaissance ?? '—' }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mère -->
+        <div class="recap-section" style="margin-top:1rem;">
+          <div class="recap-header" style="background:#2e7d32;">
+            <div class="recap-header-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+              </svg>
+            </div>
+            <h3>Mère</h3>
+          </div>
+          <div class="recap-body">
+            <div class="recap-grid">
+              <div class="recap-field">
+                <span class="recap-field-label">Nom complet</span>
+                <span class="recap-field-value">
+                  {{ acteSelected()!.declaration?.mere?.prenom }} {{ acteSelected()!.declaration?.mere?.nom }}
+                </span>
+              </div>
+              <div class="recap-field">
+                <span class="recap-field-label">Téléphone</span>
+                <span class="recap-field-value">{{ acteSelected()!.declaration?.mere?.telephone ?? '—' }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Acte -->
+        <div class="recap-section" style="margin-top:1rem;">
+          <div class="recap-header" style="background:var(--gold);">
+            <div class="recap-header-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+              </svg>
+            </div>
+            <h3>Acte officiel</h3>
+          </div>
+          <div class="recap-body">
+            <div class="recap-grid">
+              <div class="recap-field">
+                <span class="recap-field-label">Numéro d'acte</span>
+                <span class="recap-field-value">
+                  <span class="decl-ref">{{ acteSelected()!.numeroActe ?? '—' }}</span>
+                </span>
+              </div>
+              <div class="recap-field">
+                <span class="recap-field-label">Date d'établissement</span>
+                <span class="recap-field-value">{{ acteSelected()!.date | date:'dd/MM/yyyy' }}</span>
+              </div>
+              <div class="recap-field">
+                <span class="recap-field-label">Établissement</span>
+                <span class="recap-field-value">{{ acteSelected()!.declaration?.hopital?.nom ?? '—' }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /modal-body -->
 
       <div class="modal-footer">
         <button class="btn-outline-main" (click)="closeModalView()">Fermer</button>
+        <button class="btn-ghost" (click)="downloadActe(acteSelected()!, $event)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          Télécharger PDF
+        </button>
         <button class="btn-primary-main" (click)="openModalEdit(acteSelected()!)">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
@@ -513,7 +811,7 @@
      MODAL — ÉDITION
      ══════════════════════════════════════════════════════════════════════ -->
 @if (showModalEdit()) {
-  <div class="modal-backdrop" (click)="closeModalEdit()">
+  <div class="modal-overlay" (click)="closeModalEdit()">
     <div class="modal-box modal-box--lg" (click)="$event.stopPropagation()" role="dialog" aria-modal="true">
 
       <div class="modal-header">
@@ -529,6 +827,24 @@
 
       <div class="modal-body" [formGroup]="acteEditFb">
 
+        <!-- Enfant lecture seule -->
+        <div class="form-section">
+          <div class="form-section-title">Enfant (lecture seule)</div>
+          <div class="form-grid form-grid--2">
+            <div class="form-group">
+              <label class="form-label">Nom complet</label>
+              <input type="text" class="form-control-main" readonly
+                     value="{{ acteSelected()!.declaration?.enfant?.prenom }} {{ acteSelected()!.declaration?.enfant?.nom }}">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Date de naissance</label>
+              <input type="text" class="form-control-main" readonly
+                     value="{{ acteSelected()!.declaration?.enfant?.dateNaissance | date:'dd/MM/yyyy' }}">
+            </div>
+          </div>
+        </div>
+
+        <!-- Informations générales -->
         <div class="form-section">
           <div class="form-section-title">Informations générales</div>
           <div class="form-grid form-grid--2">
@@ -537,9 +853,9 @@
               <label class="form-label form-label--required">Déclaration liée</label>
               <select class="form-control-main" formControlName="declaration"
                       [class.is-invalid]="ctrl(acteEditFb,'declaration').invalid && ctrl(acteEditFb,'declaration').touched">
-                <option [ngValue]="null" disabled>— Sélectionner une déclaration —</option>
+                <option [ngValue]="null" disabled>— Sélectionner —</option>
                 @for (decl of listDeclaration(); track decl.id) {
-                  <option [ngValue]="decl.id">{{ decl.enfant.nom  }} {{ decl.enfant.prenom  }}</option>
+                  <option [ngValue]="decl.id">{{ decl.enfant.nom }} {{ decl.enfant.prenom }}</option>
                 }
               </select>
               @if (ctrl(acteEditFb,'declaration').invalid && ctrl(acteEditFb,'declaration').touched) {
@@ -559,6 +875,7 @@
           </div>
         </div>
 
+        <!-- Informations du père -->
         <div class="form-section">
           <div class="form-section-title">Informations du père</div>
           <div class="form-grid form-grid--2">
@@ -644,9 +961,7 @@
       </div><!-- /modal-body -->
 
       <div class="modal-footer">
-        <button class="btn-outline-main" (click)="closeModalEdit()" [disabled]="isSubmitting()">
-          Annuler
-        </button>
+        <button class="btn-outline-main" (click)="closeModalEdit()" [disabled]="isSubmitting()">Annuler</button>
         <button class="btn-primary-main" (click)="updateActe()" [disabled]="isSubmitting()">
           @if (isSubmitting()) {
             <span class="btn-spinner"></span>
@@ -663,4 +978,3 @@
     </div>
   </div>
 }
-
