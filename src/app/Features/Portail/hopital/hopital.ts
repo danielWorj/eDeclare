@@ -138,6 +138,8 @@ export class HopitalC implements AfterViewInit, OnDestroy {
       const _decls = this.listDeclaration();
       setTimeout(() => this.renderCharts(), 0);
     });
+
+    console.log('id hopital:',this.idHopital()); 
   }
 
   ngAfterViewInit(): void {
