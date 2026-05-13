@@ -11,17 +11,30 @@
 </div>
 
 <!-- ── Navbar ────────────────────────────────────────── -->
-  <app-admin-navbar></app-admin-navbar>
+<app-admin-navbar></app-admin-navbar>
+
 <!-- ── Layout Sidebar + Contenu ──────────────────────── -->
 <div class="layout-sidebar">
 
   <!-- Sidebar -->
-  <app-admin-sidebar></app-admin-sidebar>
+  <app-admin-sidebar [isOpen]="sidebarOpen()"></app-admin-sidebar>
+
+  <!-- Overlay (clic ferme le sidebar sur mobile) -->
+  @if (sidebarOpen()) {
+    <div class="sidebar-overlay" (click)="closeSidebar()"></div>
+  }
 
   <!-- Contenu principal -->
-   <div class="main-content">
+  <div class="main-content">
     <router-outlet></router-outlet>
-
-   </div>
+  </div>
 </div>
 
+<!-- Bouton hamburger flottant (mobile uniquement) -->
+<button class="sidebar-toggle-fab" (click)="toggleSidebar()" [attr.aria-expanded]="sidebarOpen()" aria-label="Menu">
+  @if (sidebarOpen()) {
+    <i class="bi bi-x-lg"></i>
+  } @else {
+    <i class="bi bi-list"></i>
+  }
+</button>

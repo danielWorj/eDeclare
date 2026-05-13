@@ -69,27 +69,6 @@
         </p>
       </div>
 
-      <!-- Sélecteur de profil -->
-      <div class="profile-tabs">
-        <button type="button"
-                class="profile-tab"
-                [class.profile-tab--active]="profilActif() === 'parent'"
-                (click)="setProfilActif('parent')">
-          👤 Parent / Citoyen
-        </button>
-        <button type="button"
-                class="profile-tab"
-                [class.profile-tab--active]="profilActif() === 'hopital'"
-                (click)="setProfilActif('hopital')">
-          🏥 Hôpital
-        </button>
-        <button type="button"
-                class="profile-tab"
-                [class.profile-tab--active]="profilActif() === 'mairie'"
-                (click)="setProfilActif('mairie')">
-          🏛️ Mairie
-        </button>
-      </div>
 
       <!-- Formulaire Angular -->
       <form [formGroup]="authForm" (ngSubmit)="login()">

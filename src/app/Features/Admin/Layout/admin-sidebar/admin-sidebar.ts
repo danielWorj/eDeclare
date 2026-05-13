@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, Input } from '@angular/core';
 import { RouterLink, RouterLinkActive } from "@angular/router";
 
 @Component({
@@ -8,10 +8,10 @@ import { RouterLink, RouterLinkActive } from "@angular/router";
   styleUrl: './admin-sidebar.css',
 })
 export class AdminSidebar {
-  role=signal<number>(0); 
-  constructor(){
-    this.role.set(parseInt(localStorage.getItem("role")!)??0); 
-    console.log('le role recu est :'+ this.role()); 
-  }
+  role = signal<number>(0);
+  @Input() isOpen = false;  // ← reçoit l'état depuis le parent
 
+  constructor() {
+    this.role.set(parseInt(localStorage.getItem("role")!) ?? 0);
+  }
 }

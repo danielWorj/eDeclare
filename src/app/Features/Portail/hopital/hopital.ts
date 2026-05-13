@@ -1,4 +1,4 @@
-import { Component, signal, AfterViewInit, ElementRef, ViewChild } from '@angular/core';
+import { Component, signal, AfterViewInit, OnDestroy, effect, ElementRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormControl, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 
@@ -10,8 +10,34 @@ import { ServerResponse } from '../../../Core/Model/Server/ServerResponse';
 import { Declaration } from '../../../Core/Model/Acte/Declaration';
 import { Hopital } from '../../../Core/Model/Etablissement/Hopital';
 
-// On déclare Chart globalement (chargé via CDN dans index.html)
-declare const Chart: any;
+import {
+  Chart,
+  ChartConfiguration,
+  LineController,
+  DoughnutController,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  ArcElement,
+  Tooltip,
+  Legend,
+  Filler,
+} from 'chart.js';
+
+// Enregistrement explicite de tous les modules nécessaires
+Chart.register(
+  LineController,
+  DoughnutController,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  ArcElement,
+  Tooltip,
+  Legend,
+  Filler,
+);
 
 @Component({
   selector: 'app-hopital',
@@ -20,14 +46,14 @@ declare const Chart: any;
   templateUrl: './hopital.html',
   styleUrl: './hopital.css',
 })
-export class HopitalC implements AfterViewInit {
+export class HopitalC implements AfterViewInit, OnDestroy {
 
   // ─── Références canvas pour Chart.js ────────────────────────────────────────
   @ViewChild('chartEvolution') chartEvolutionRef!: ElementRef<HTMLCanvasElement>;
   @ViewChild('chartSexe')      chartSexeRef!:      ElementRef<HTMLCanvasElement>;
 
-  private chartEvolution: any = null;
-  private chartSexe: any      = null;
+  private chartEvolution: Chart | null = null;
+  private chartSexe: Chart | null      = null;
 
   // ─── ID de l'établissement connecté ─────────────────────────────────────────
   idHopital        = signal<number>(0);
@@ -106,10 +132,21 @@ export class HopitalC implements AfterViewInit {
     });
 
     this.loadPage();
+
+    // Effet réactif : reconstruire les graphiques quand les données changent
+    effect(() => {
+      const _decls = this.listDeclaration();
+      setTimeout(() => this.renderCharts(), 0);
+    });
   }
 
   ngAfterViewInit(): void {
-    // Les graphes seront dessinés après le chargement des données (voir renderCharts)
+    this.renderCharts();
+  }
+
+  ngOnDestroy(): void {
+    this.chartEvolution?.destroy();
+    this.chartSexe?.destroy();
   }
 
   // ─── Chargement ──────────────────────────────────────────────────────────────
@@ -196,23 +233,16 @@ export class HopitalC implements AfterViewInit {
   // ─── Graphes Chart.js ────────────────────────────────────────────────────────
 
   renderCharts(): void {
-    // setTimeout(0) pour laisser Angular finir le rendu avant de dessiner les canvas
-    setTimeout(() => {
-      this.buildEvolutionChart();
-      this.buildSexeChart();
-    }, 0);
+    this.buildEvolutionChart();
+    this.buildSexeChart();
   }
 
   /** Graphe ligne : évolution des déclarations par mois (12 derniers mois) */
   private buildEvolutionChart(): void {
-    const canvas = this.chartEvolutionRef?.nativeElement;
-    if (!canvas || typeof Chart === 'undefined') return;
+    if (!this.chartEvolutionRef?.nativeElement) return;
 
-    // Détruire si déjà existant
-    if (this.chartEvolution) { this.chartEvolution.destroy(); }
-
-    const now   = new Date();
-    const labels: string[]  = [];
+    const now        = new Date();
+    const labels: string[]     = [];
     const dataMale: number[]   = [];
     const dataFemale: number[] = [];
     const dataTotal: number[]  = [];
@@ -230,7 +260,17 @@ export class HopitalC implements AfterViewInit {
       dataTotal.push(inMonth.length);
     }
 
-    this.chartEvolution = new Chart(canvas, {
+    // Mise à jour si le graphe existe déjà
+    if (this.chartEvolution) {
+      this.chartEvolution.data.labels = labels;
+      (this.chartEvolution.data.datasets[0] as any).data = dataTotal;
+      (this.chartEvolution.data.datasets[1] as any).data = dataMale;
+      (this.chartEvolution.data.datasets[2] as any).data = dataFemale;
+      this.chartEvolution.update();
+      return;
+    }
+
+    const config: ChartConfiguration = {
       type: 'line',
       data: {
         labels,
@@ -283,20 +323,26 @@ export class HopitalC implements AfterViewInit {
           },
         },
       },
-    });
+    };
+
+    this.chartEvolution = new Chart(this.chartEvolutionRef.nativeElement, config);
   }
 
   /** Graphe donut : répartition par sexe */
   private buildSexeChart(): void {
-    const canvas = this.chartSexeRef?.nativeElement;
-    if (!canvas || typeof Chart === 'undefined') return;
-
-    if (this.chartSexe) { this.chartSexe.destroy(); }
+    if (!this.chartSexeRef?.nativeElement) return;
 
     const male   = this.numberOfDeclarationMale();
     const female = this.numberOfDeclarationFemale();
 
-    this.chartSexe = new Chart(canvas, {
+    // Mise à jour si le graphe existe déjà
+    if (this.chartSexe) {
+      (this.chartSexe.data.datasets[0] as any).data = [male, female];
+      this.chartSexe.update();
+      return;
+    }
+
+    const config: ChartConfiguration<'doughnut'> = {
       type: 'doughnut',
       data: {
         labels: ['Garçons', 'Filles'],
@@ -319,16 +365,18 @@ export class HopitalC implements AfterViewInit {
           },
           tooltip: {
             callbacks: {
-              label: (ctx: any) => {
+              label: (ctx) => {
                 const total = male + female;
-                const pct   = total > 0 ? Math.round((ctx.raw / total) * 100) : 0;
+                const pct   = total > 0 ? Math.round((ctx.raw as number / total) * 100) : 0;
                 return ` ${ctx.raw} (${pct}%)`;
               },
             },
           },
         },
       },
-    });
+    };
+
+    this.chartSexe = new Chart(this.chartSexeRef.nativeElement, config);
   }
 
   // ─── UI : modale & menu mobile ───────────────────────────────────────────────
@@ -352,26 +400,23 @@ export class HopitalC implements AfterViewInit {
 
   onSelectCniMere(event: Event): void {
     const file = this.extraireFile(event, ['image/jpeg','image/png','application/pdf']);
-    if (!file) { this.errorMessage.set('CNI : format accepté — JPG, PNG ou PDF.'); return; }
+    if (!file) { this.notify('error', 'CNI : format accepté — JPG, PNG ou PDF.'); return; }
     this.cniMere = file;
     this.cniMereNom.set(file.name);
-    this.errorMessage.set(null);
   }
 
   onSelectPhoto4x4(event: Event): void {
     const file = this.extraireFile(event, ['image/jpeg','image/png']);
-    if (!file) { this.errorMessage.set('Photo 4×4 : format accepté — JPG ou PNG.'); return; }
+    if (!file) { this.notify('error', 'Photo 4×4 : format accepté — JPG ou PNG.'); return; }
     this.photo4x4 = file;
     this.photo4x4Nom.set(file.name);
-    this.errorMessage.set(null);
   }
 
   onSelectCertificationNaissance(event: Event): void {
     const file = this.extraireFile(event, ['image/jpeg','image/png','application/pdf']);
-    if (!file) { this.errorMessage.set('Certification : format accepté — JPG, PNG ou PDF.'); return; }
+    if (!file) { this.notify('error', 'Certification : format accepté — JPG, PNG ou PDF.'); return; }
     this.certificationNaissance = file;
     this.certificationNaissanceNom.set(file.name);
-    this.errorMessage.set(null);
   }
 
   private extraireFile(event: Event, types: string[]): File | null {
@@ -390,9 +435,9 @@ export class HopitalC implements AfterViewInit {
   // ─── Validation fichiers ─────────────────────────────────────────────────────
 
   private fichiersValides(): boolean {
-    if (!this.cniMere)                { this.errorMessage.set('Veuillez fournir la CNI de la mère.');             return false; }
-    if (!this.photo4x4)               { this.errorMessage.set('Veuillez fournir la photo 4×4.');                  return false; }
-    if (!this.certificationNaissance) { this.errorMessage.set('Veuillez fournir la certification de naissance.'); return false; }
+    if (!this.cniMere)                { this.notify('error', 'Veuillez fournir la CNI de la mère.');             return false; }
+    if (!this.photo4x4)               { this.notify('error', 'Veuillez fournir la photo 4×4.');                  return false; }
+    if (!this.certificationNaissance) { this.notify('error', 'Veuillez fournir la certification de naissance.'); return false; }
     return true;
   }
 
@@ -401,14 +446,12 @@ export class HopitalC implements AfterViewInit {
   soumettre(): void {
     if (this.declarationFb.invalid) {
       this.declarationFb.markAllAsTouched();
-      this.errorMessage.set('Veuillez remplir tous les champs obligatoires.');
+      this.notify('error', 'Veuillez remplir tous les champs obligatoires.');
       return;
     }
     if (!this.fichiersValides()) return;
 
     this.isLoading.set(true);
-    this.errorMessage.set(null);
-    this.successMessage.set(null);
 
     this.declarationFb.controls['hopital'].setValue(this.hopitalConnected()?.id);
     this.declarationFb.controls['mairie'].setValue(this.hopitalConnected()?.mairie?.id);
@@ -425,16 +468,16 @@ export class HopitalC implements AfterViewInit {
       next: (response: ServerResponse) => {
         this.isLoading.set(false);
         if (response.status) {
-          this.successMessage.set('Déclaration créée avec succès !');
+          this.notify('success', 'Déclaration créée avec succès !');
           this.fermerModal();
           this.loadPage();
         } else {
-          this.errorMessage.set(response.message ?? 'Erreur lors de la création.');
+          this.notify('error', response.message ?? 'Erreur lors de la création.');
         }
       },
       error: (err: any) => {
         this.isLoading.set(false);
-        this.errorMessage.set('Erreur serveur : ' + (err?.error?.message ?? err.message));
+        this.notify('error', 'Erreur serveur : ' + (err?.error?.message ?? err.message));
       },
     });
   }
@@ -446,6 +489,18 @@ export class HopitalC implements AfterViewInit {
     this.supprimerCni();
     this.supprimerPhoto();
     this.supprimerCertification();
+  }
+
+  // ─── Notifications (toasts) ──────────────────────────────────────────────────
+
+  private notify(type: 'success' | 'error', msg: string): void {
+    if (type === 'success') {
+      this.successMessage.set(msg);
+      setTimeout(() => this.successMessage.set(null), 4000);
+    } else {
+      this.errorMessage.set(msg);
+      setTimeout(() => this.errorMessage.set(null), 5000);
+    }
   }
 
   // ─── Helpers template ────────────────────────────────────────────────────────
