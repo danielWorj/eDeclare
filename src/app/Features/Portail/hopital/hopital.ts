@@ -155,14 +155,16 @@ export class HopitalC implements AfterViewInit, OnDestroy {
 
   loadPage(): void {
     this.getHopitalById(this.idHopital());
-    this.getAllSexes();
+    this.getAllSexes(); 
     this.getAllDeclaration();
   }
 
   getHopitalById(id: number): void {
     this.etablissementService.getHopitalByid(id).subscribe({
       next: (response: Hopital) => {
+        console.log('response :', response); 
         this.hopitalConnected.set(response);
+        console.log('hopital recu', this.hopitalConnected()); 
         this.declarationFb.get('hopital')?.setValue(response.id);
         this.declarationFb.get('mairie')?.setValue(response.mairie?.id);
       },

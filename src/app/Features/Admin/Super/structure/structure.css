@@ -1,0 +1,356 @@
+/* ============================================================
+   STRUCTURE — Styles spécifiques (préfixe : str__)
+   Conçu pour coexister sans conflit avec style.css global
+   ============================================================ */
+
+/* ── Conteneur racine ───────────────────────────────────────── */
+.str__root {
+  position: relative;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   TABS
+══════════════════════════════════════════════════════════════ */
+.str__tabs {
+  display: flex;
+  gap: .35rem;
+  background: var(--surface);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  padding: .35rem;
+  margin-bottom: 1.5rem;
+  width: fit-content;
+  box-shadow: var(--shadow-sm);
+}
+
+.str__tab {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .55rem 1.25rem;
+  border-radius: var(--radius);
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-family: var(--font-body);
+  font-size: 13.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition);
+  white-space: nowrap;
+}
+
+.str__tab:hover {
+  color: var(--primary);
+  background: var(--primary-xlight);
+}
+
+.str__tab--active {
+  background: var(--primary);
+  color: #fff;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(0, 49, 137, .25);
+}
+
+.str__tab--active:hover {
+  background: var(--primary-light);
+  color: #fff;
+}
+
+.str__tab-badge {
+  background: rgba(255, 255, 255, .22);
+  color: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  padding: .1rem .45rem;
+  border-radius: 50px;
+  min-width: 20px;
+  text-align: center;
+}
+
+.str__tab:not(.str__tab--active) .str__tab-badge {
+  background: var(--border);
+  color: var(--text-muted);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   PANEL HEADER EXTRAS
+══════════════════════════════════════════════════════════════ */
+.str__panel-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: .65rem;
+}
+
+.str__panel-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-sm);
+  background: var(--primary-xlight);
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.str__panel-icon--green {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   BARRE DE RECHERCHE DANS LE HEADER
+══════════════════════════════════════════════════════════════ */
+.str__search-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.str__search-icon {
+  position: absolute;
+  left: .75rem;
+  color: var(--text-light);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.str__search-input {
+  padding-left: 2.25rem !important;
+  width: 220px;
+  transition: width var(--transition), border-color var(--transition), box-shadow var(--transition);
+}
+
+.str__search-input:focus {
+  width: 280px;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   ACTIONS TABLEAU
+══════════════════════════════════════════════════════════════ */
+.str__actions {
+  display: flex;
+  align-items: center;
+  gap: .35rem;
+}
+
+.str__btn-delete {
+  color: var(--accent) !important;
+  border-color: #fecaca !important;
+}
+
+.str__btn-delete:hover {
+  background: var(--accent) !important;
+  color: #fff !important;
+  border-color: var(--accent) !important;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   CHARGEMENT
+══════════════════════════════════════════════════════════════ */
+.str__loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .75rem;
+  padding: 3rem 1rem;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   MODAL VARIANTE — Danger (suppression)
+══════════════════════════════════════════════════════════════ */
+.str__modal-delete {
+  max-width: 480px !important;
+}
+
+.str__modal-header--danger {
+  background: var(--accent) !important;
+}
+
+.str__delete-confirm {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 1.25rem;
+  padding: .5rem 0;
+}
+
+.str__delete-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  border: 2px solid #fecaca;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+.str__delete-text {
+  font-size: 14.5px;
+  color: var(--text);
+  line-height: 1.65;
+  max-width: 340px;
+}
+
+.str__btn-danger-full {
+  padding: .6rem 1.25rem !important;
+  font-size: 13.5px !important;
+  font-weight: 700 !important;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   TOASTS
+══════════════════════════════════════════════════════════════ */
+.str__toast-container {
+  position: fixed;
+  bottom: 1.75rem;
+  right: 1.75rem;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: .6rem;
+  pointer-events: none;
+  width: 340px;
+  max-width: calc(100vw - 2rem);
+}
+
+.str__toast {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  padding: .85rem 1rem;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--text);
+  pointer-events: all;
+
+  /* Animation d'entrée / sortie */
+  opacity: 0;
+  transform: translateX(100%);
+  transition: opacity .3s cubic-bezier(.4, 0, .2, 1),
+              transform .3s cubic-bezier(.34, 1.56, .64, 1);
+}
+
+.str__toast--visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Succès */
+.str__toast--success {
+  background: #f0fdf4;
+  border-color: #86efac;
+  color: #15803d;
+}
+
+.str__toast--success .str__toast-icon {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+/* Erreur */
+.str__toast--error {
+  background: #fff1f2;
+  border-color: #fca5a5;
+  color: #dc2626;
+}
+
+.str__toast--error .str__toast-icon {
+  background: #fee2e2;
+  color: var(--accent);
+}
+
+/* Info */
+.str__toast--info {
+  background: var(--primary-xlight);
+  border-color: var(--border);
+  color: var(--primary);
+}
+
+.str__toast--info .str__toast-icon {
+  background: #c7d7f8;
+  color: var(--primary);
+}
+
+.str__toast-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.str__toast-message {
+  flex: 1;
+  line-height: 1.45;
+}
+
+.str__toast-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: inherit;
+  opacity: .55;
+  padding: .2rem;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: opacity var(--transition);
+}
+
+.str__toast-close:hover {
+  opacity: 1;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   RESPONSIVE
+══════════════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  .str__tabs {
+    width: 100%;
+  }
+
+  .str__tab {
+    flex: 1;
+    justify-content: center;
+    padding: .5rem .75rem;
+    font-size: 12.5px;
+  }
+
+  .str__search-input,
+  .str__search-input:focus {
+    width: 100%;
+  }
+
+  .str__search-wrap {
+    width: 100%;
+  }
+
+  .str__toast-container {
+    bottom: 1rem;
+    right: 1rem;
+    left: 1rem;
+    width: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .str__tab-badge {
+    display: none;
+  }
+}

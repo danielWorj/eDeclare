@@ -3,6 +3,17 @@
 
      @if (role()==1) {
       <!-- ADMIN -->
+       <a  id="nav-dashboard" class="sidebar-link" routerLink="structure" routerLinkActive="active">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          Structure
+        </a>
+
+        <a  id="nav-naissances" class="sidebar-link" routerLink="utilisateur" routerLinkActive="active">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          Utilisateurs
+          <span class="sidebar-badge">17</span>
+        </a>
+
      }
      @if (role()==2) {
       <!-- HOPITAL -->

@@ -77,6 +77,28 @@ export const routes: Routes = [
         path: 'hopital', 
         loadComponent: () => import('./Features/Portail/hopital/hopital').then(m => m.HopitalC) 
 
-    }
+    },
+     {
+        path: 'admin',
+        loadComponent: () => import('./Features/Admin/Layout/layouts/layouts').then(m => m.Layouts), 
+        canActivate: [authGuard],
+        children: [
+            //MAIRIE
+            
+            { 
+                path: 'home', 
+                loadComponent: () => import('./Features/Admin/Super/structure/structure').then(m => m.StructureC) 
+            },
+            { 
+                path: 'structure', 
+                loadComponent: () => import('./Features/Admin/Super/structure/structure').then(m => m.StructureC) 
+            },
+            { 
+                path: 'utilisateur', 
+                loadComponent: () => import('./Features/Admin/Super/utilisateurs/utilisateurs').then(m => m.Utilisateurs) 
+            } 
+
+        ]
+    }, 
 ];
 

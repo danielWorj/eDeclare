@@ -22,7 +22,7 @@ export class AuthService {
     return this.httpClient.post<BasicAuthData>(eHAllSystemEndPoints.Auth.login , request); 
   }
 
-  pingPong():Observable<string>{
-    return this.httpClient.get<string>(eHAllSystemEndPoints.Ping.pong); 
+  pingPong():Observable<any>{
+    return this.httpClient.get<any>(eHAllSystemEndPoints.Ping.pong); 
   }
 }

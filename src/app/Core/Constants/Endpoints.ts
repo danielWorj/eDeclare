@@ -58,6 +58,13 @@ export const eHAllSystemEndPoints ={
         Parent :{
             all : `${userBaseUrl}/parent/all`,
             byId : `${userBaseUrl}/parent/byId/`,
+        }, 
+        Agent :{
+            all : `${userBaseUrl}/agent/all`,
+            allbystructure : `${userBaseUrl}/agent/all/bystructure/`,
+            create : `${userBaseUrl}/agent/create`,
+            update : `${userBaseUrl}/agent/update`,
+            delete : `${userBaseUrl}/agent/delete/`
         }
     }
 

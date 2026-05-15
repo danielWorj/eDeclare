@@ -1,0 +1,701 @@
+<!-- ═══════════════════════════════════════════════════════════════════
+     UTILISATEURS — Gestion des agents
+     Préfixe CSS : usr__
+     ═══════════════════════════════════════════════════════════════════ -->
+<div class="usr__root">
+
+  <!-- ── En-tête page ─────────────────────────────────────────────── -->
+  <div class="page-header">
+    <div class="page-header-left">
+      <p class="page-eyebrow">Administration</p>
+      <h1 class="page-title">Gestion des utilisateurs</h1>
+      <p class="page-subtitle">Agents, superviseurs et administrateurs rattachés aux structures.</p>
+    </div>
+    <button class="btn-primary-main" (click)="openCreate()">
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+        <path d="M12 5v14M5 12h14"/>
+      </svg>
+      Nouvel agent
+    </button>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════
+       MÉTRIQUES KPI
+  ══════════════════════════════════════════════════════════════ -->
+  <div class="kpi-grid">
+
+    <div class="kpi-card">
+      <div class="kpi-icon">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+      </div>
+      <p class="kpi-label">Total agents</p>
+      <p class="kpi-value">{{ metriques().total }}</p>
+      <p class="kpi-change up">
+        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="m18 15-6-6-6 6"/></svg>
+        Tous statuts confondus
+      </p>
+    </div>
+
+    <div class="kpi-card green">
+      <div class="kpi-icon">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+          <path d="M20 6 9 17l-5-5"/>
+        </svg>
+      </div>
+      <p class="kpi-label">Actifs</p>
+      <p class="kpi-value">{{ metriques().actifs }}</p>
+      <p class="kpi-change up">Comptes actifs</p>
+    </div>
+
+    <div class="kpi-card gold">
+      <div class="kpi-icon">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="12"/>
+          <line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+      </div>
+      <p class="kpi-label">En attente</p>
+      <p class="kpi-value">{{ metriques().attent }}</p>
+      <p class="kpi-change">Validation requise</p>
+    </div>
+
+    <div class="kpi-card accent">
+      <div class="kpi-icon">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
+        </svg>
+      </div>
+      <p class="kpi-label">Bloqués</p>
+      <p class="kpi-value">{{ metriques().bloq }}</p>
+      <p class="kpi-change down">Accès suspendu</p>
+    </div>
+
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════
+       GRAPHIQUE — Répartition par structure
+  ══════════════════════════════════════════════════════════════ -->
+  <div class="card-panel usr__chart-panel mb-4">
+    <div class="card-panel-header">
+      <div class="usr__panel-title-wrap">
+        <div class="usr__panel-icon">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+            <line x1="18" y1="20" x2="18" y2="10"/>
+            <line x1="12" y1="20" x2="12" y2="4"/>
+            <line x1="6"  y1="20" x2="6"  y2="14"/>
+          </svg>
+        </div>
+        <span class="card-panel-title">Répartition des agents par structure</span>
+      </div>
+      <div class="usr__chart-legend">
+        <span class="usr__legend-dot usr__legend-dot--mairie"></span><span class="usr__legend-label">Mairie</span>
+        <span class="usr__legend-dot usr__legend-dot--hopital"></span><span class="usr__legend-label">Hôpital</span>
+      </div>
+    </div>
+    <div class="card-panel-body">
+      @if (chartBars().length === 0) {
+        <div class="table-empty">
+          <svg width="36" height="36" fill="none" stroke="currentColor" stroke-width="1.3" viewBox="0 0 24 24" opacity=".3">
+            <line x1="18" y1="20" x2="18" y2="10"/>
+            <line x1="12" y1="20" x2="12" y2="4"/>
+            <line x1="6"  y1="20" x2="6"  y2="14"/>
+          </svg>
+          <p>Aucune donnée disponible.</p>
+        </div>
+      } @else {
+        <div class="usr__chart-canvas-wrap">
+          <canvas #agentsChart></canvas>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════
+       TABLEAU AGENTS
+  ══════════════════════════════════════════════════════════════ -->
+  <div class="card-panel">
+
+    <!-- En-tête avec filtres -->
+    <div class="card-panel-header usr__table-header">
+
+      <!-- Titre -->
+      <div class="usr__panel-title-wrap">
+        <div class="usr__panel-icon">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
+          </svg>
+        </div>
+        <span class="card-panel-title">
+          Liste des agents
+          <span class="usr__count-badge">{{ filteredAgents().length }}</span>
+        </span>
+      </div>
+
+      <!-- Filtres & actions -->
+      <div class="usr__filters-wrap">
+
+        <!-- Recherche -->
+        <div class="str__search-wrap">
+          <svg class="str__search-icon" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+          </svg>
+          <input
+            type="text"
+            class="form-control-main str__search-input"
+            placeholder="Rechercher un agent…"
+            [value]="searchQuery()"
+            (input)="onSearch($event)">
+        </div>
+
+        <!-- Filtre type structure -->
+        <div class="usr__filter-tabs">
+          <button class="usr__filter-tab" [class.usr__filter-tab--active]="filterType() === 'all'"     (click)="setFilterType('all')">Tous</button>
+          <button class="usr__filter-tab" [class.usr__filter-tab--active]="filterType() === 'mairie'"  (click)="setFilterType('mairie')">Mairies</button>
+          <button class="usr__filter-tab" [class.usr__filter-tab--active]="filterType() === 'hopital'" (click)="setFilterType('hopital')">Hôpitaux</button>
+        </div>
+
+        <!-- Filtre par mairie spécifique -->
+        @if (filterType() === 'mairie') {
+          <select class="form-control-main usr__select-filter"
+            [value]="filterStructId() ?? ''"
+            (change)="setFilterStructure(+($any($event.target).value) || null)">
+            <option value="">Toutes les mairies</option>
+            @for (m of mairies(); track m.id) {
+              <option [value]="m.id">{{ m.nom }}</option>
+            }
+          </select>
+        }
+
+        <!-- Filtre par hôpital spécifique -->
+        @if (filterType() === 'hopital') {
+          <select class="form-control-main usr__select-filter"
+            [value]="filterStructId() ?? ''"
+            (change)="setFilterStructure(+($any($event.target).value) || null)">
+            <option value="">Tous les hôpitaux</option>
+            @for (h of hopitaux(); track h.id) {
+              <option [value]="h.id">{{ h.nom }}</option>
+            }
+          </select>
+        }
+
+        <!-- Effacer filtres -->
+        @if (hasActiveFilter) {
+          <button class="btn-ghost usr__clear-btn" (click)="clearFilters()" title="Réinitialiser les filtres">
+            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <path d="M18 6 6 18M6 6l12 12"/>
+            </svg>
+            Effacer
+          </button>
+        }
+
+        <button class="btn-primary-main" (click)="openCreate()">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path d="M12 5v14M5 12h14"/>
+          </svg>
+          Ajouter
+        </button>
+      </div>
+    </div>
+
+    <!-- Tableau desktop -->
+    <div class="table-responsive">
+      @if (loading().agents) {
+        <div class="str__loading">
+          <span class="spinner"></span>
+          <span>Chargement des agents…</span>
+        </div>
+      } @else {
+        <table class="table-custom">
+          <thead>
+            <tr>
+              <th>Agent</th>
+              <th>Structure</th>
+              <th>Rôle</th>
+              <th>Statut</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (a of filteredAgents(); track a.id) {
+              <tr>
+                <td>
+                  <div class="usr__agent-cell">
+                    <div class="usr__avatar">{{ initiales(a.nom, a.prenom) }}</div>
+                    <div class="usr__agent-info">
+                      <span class="usr__agent-name">{{ a.nom }} {{ a.prenom }}</span>
+                      <span class="usr__agent-sub">{{ a.email }}</span>
+                      <span class="usr__agent-sub">{{ a.telephone }}</span>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <span class="usr__struct-badge"
+                    [class.usr__struct-badge--hopital]="a.structure?.nom!.toLowerCase().includes('hôpital') || a.structure?.nom!.toLowerCase().includes('hopital')">
+                    {{ a.structure?.nom ?? '—' }}
+                  </span>
+                </td>
+                <td class="td-muted">{{ a.roleUser?.nom ?? '—' }}</td>
+                <td>
+                  <span class="badge-status" [class]="'badge-status ' + getStatut(a.statutUser?.id).css">
+                    {{ getStatut(a.statutUser?.id).label }}
+                  </span>
+                </td>
+                <td>
+                  <div class="str__actions">
+                    <button class="btn-icon" title="Voir le détail" (click)="openView(a)">
+                      <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                        <circle cx="12" cy="12" r="3"/>
+                      </svg>
+                    </button>
+                    <button class="btn-icon" title="Modifier" (click)="openEdit(a)">
+                      <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                      </svg>
+                    </button>
+                    <button class="btn-icon str__btn-delete" title="Supprimer" (click)="openDelete(a)">
+                      <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <polyline points="3 6 5 6 21 6"/>
+                        <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                        <path d="M10 11v6M14 11v6"/>
+                        <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+                      </svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="5">
+                  <div class="table-empty">
+                    <svg width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.3" viewBox="0 0 24 24" opacity=".3">
+                      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                      <circle cx="9" cy="7" r="4"/>
+                      <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
+                    </svg>
+                    <p>Aucun agent correspondant aux filtres.</p>
+                    @if (hasActiveFilter) {
+                      <button class="btn-ghost" (click)="clearFilters()">Réinitialiser les filtres</button>
+                    }
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      }
+    </div>
+
+    <!-- Vue cartes mobile -->
+    <div class="cards-mobile">
+      @for (a of filteredAgents(); track a.id) {
+        <div class="decl-card-mobile">
+          <div class="decl-card-header">
+            <div class="usr__agent-cell">
+              <div class="usr__avatar">{{ initiales(a.nom, a.prenom) }}</div>
+              <div class="usr__agent-info">
+                <span class="usr__agent-name">{{ a.nom }} {{ a.prenom }}</span>
+                <span class="badge-status" [class]="'badge-status ' + getStatut(a.statutUser?.id).css">
+                  {{ getStatut(a.statutUser?.id).label }}
+                </span>
+              </div>
+            </div>
+            <div class="str__actions">
+              <button class="btn-icon" (click)="openView(a)">
+                <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                  <circle cx="12" cy="12" r="3"/>
+                </svg>
+              </button>
+              <button class="btn-icon" (click)="openEdit(a)">
+                <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                </svg>
+              </button>
+              <button class="btn-icon str__btn-delete" (click)="openDelete(a)">
+                <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <polyline points="3 6 5 6 21 6"/>
+                  <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div class="decl-card-body">
+            <div class="decl-card-row">
+              <span class="decl-card-label">Structure</span>
+              <span class="decl-card-value">{{ a.structure?.nom ?? '—' }}</span>
+            </div>
+            <div class="decl-card-row">
+              <span class="decl-card-label">Email</span>
+              <span class="decl-card-value">{{ a.email }}</span>
+            </div>
+            <div class="decl-card-row">
+              <span class="decl-card-label">Téléphone</span>
+              <span class="decl-card-value">{{ a.telephone }}</span>
+            </div>
+          </div>
+        </div>
+      } @empty {
+        <div class="table-empty"><p>Aucun agent trouvé.</p></div>
+      }
+    </div>
+
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════
+       MODAL — Créer / Modifier un agent
+  ══════════════════════════════════════════════════════════════ -->
+  <div class="modal-overlay" [class.open]="modalMode() === 'create' || modalMode() === 'edit'">
+    <div class="modal-box modal-lg">
+
+      <div class="modal-header">
+        <div class="modal-header-left">
+          <div class="modal-header-icon">
+            <svg width="16" height="16" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+          </div>
+          <div>
+            <h2 class="modal-title">{{ modalMode() === 'edit' ? "Modifier l'agent" : 'Nouvel agent' }}</h2>
+            <p class="modal-subtitle">{{ modalMode() === 'edit' ? 'Mettez à jour les informations.' : "Créez un nouveau compte utilisateur." }}</p>
+          </div>
+        </div>
+        <button class="modal-close" (click)="closeModal()">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path d="M18 6 6 18M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="modal-body" [formGroup]="agentForm">
+
+        <!-- Section Identité -->
+        <div>
+          <p class="form-section-title">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+            Identité
+          </p>
+          <div class="form-grid form-grid--2">
+            <div class="form-field">
+              <label class="form-label-main">Nom <span class="required">*</span></label>
+              <input type="text" class="form-control-main" [class.is-invalid]="fcErr('nom')"
+                formControlName="nom" placeholder="Ex : NGUEMA">
+              @if (fcErr('nom')) { <span class="form-error">Nom requis (2 car. min).</span> }
+            </div>
+            <div class="form-field">
+              <label class="form-label-main">Prénom <span class="required">*</span></label>
+              <input type="text" class="form-control-main" [class.is-invalid]="fcErr('prenom')"
+                formControlName="prenom" placeholder="Ex : Jean-Pierre">
+              @if (fcErr('prenom')) { <span class="form-error">Prénom requis (2 car. min).</span> }
+            </div>
+            <div class="form-field">
+              <label class="form-label-main">Téléphone <span class="required">*</span></label>
+              <input type="tel" class="form-control-main" [class.is-invalid]="fcErr('telephone')"
+                formControlName="telephone" placeholder="+237 6XX XXX XXX">
+              @if (fcErr('telephone')) { <span class="form-error">Téléphone requis.</span> }
+            </div>
+            <div class="form-field">
+              <label class="form-label-main">Email <span class="required">*</span></label>
+              <input type="email" class="form-control-main" [class.is-invalid]="fcErr('email')"
+                formControlName="email" placeholder="agent@structure.cm">
+              @if (fcErr('email')) { <span class="form-error">Email invalide ou requis.</span> }
+            </div>
+          </div>
+        </div>
+
+        <!-- Section Mot de passe -->
+        <div>
+          <p class="form-section-title">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+            Sécurité
+          </p>
+          <div class="form-grid form-grid--2">
+            <div class="form-field form-field--span2">
+              <label class="form-label-main">
+                Mot de passe
+                @if (modalMode() === 'create') { <span class="required">*</span> }
+                @if (modalMode() === 'edit') { <span class="usr__optional-label">(laisser vide pour ne pas changer)</span> }
+              </label>
+              <input type="password" class="form-control-main" [class.is-invalid]="fcErr('password')"
+                formControlName="password" placeholder="••••••••" autocomplete="new-password">
+              @if (fcErr('password')) { <span class="form-error">Mot de passe requis (6 car. min).</span> }
+            </div>
+          </div>
+        </div>
+
+        <!-- Section Affectation -->
+        <div>
+          <p class="form-section-title">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+              <polyline points="9 22 9 12 15 12 15 22"/>
+            </svg>
+            Affectation & accès
+          </p>
+          <div class="form-grid form-grid--2">
+            <div class="form-field">
+              <label class="form-label-main">Structure <span class="required">*</span></label>
+              <select class="form-control-main" [class.is-invalid]="fcErr('structure')" formControlName="structure">
+                <option [ngValue]="null" disabled>Sélectionner…</option>
+                <optgroup label="Mairies">
+                  @for (m of mairies(); track m.id) {
+                    <option [value]="m.id">{{ m.nom }}</option>
+                  }
+                </optgroup>
+                <optgroup label="Hôpitaux">
+                  @for (h of hopitaux(); track h.id) {
+                    <option [value]="h.id">{{ h.nom }}</option>
+                  }
+                </optgroup>
+              </select>
+              @if (fcErr('structure')) { <span class="form-error">Structure requise.</span> }
+            </div>
+            <div class="form-field">
+              <label class="form-label-main">Rôle <span class="required">*</span></label>
+              <select class="form-control-main" [class.is-invalid]="fcErr('roleUser')" formControlName="roleUser">
+                <option [ngValue]="null" disabled>Sélectionner…</option>
+                @for (r of ROLES; track r.id) {
+                  <option [value]="r.id">{{ r.nom }}</option>
+                }
+              </select>
+              @if (fcErr('roleUser')) { <span class="form-error">Rôle requis.</span> }
+            </div>
+            <div class="form-field">
+              <label class="form-label-main">Statut <span class="required">*</span></label>
+              <select class="form-control-main" formControlName="statutUser">
+                @for (k of STATUT_KEYS; track k) {
+                  <option [value]="k">{{ STATUTS[k].label }}</option>
+                }
+              </select>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-ghost" (click)="closeModal()" [disabled]="saving()">Annuler</button>
+        <button class="btn-primary-main" (click)="saveAgent()" [disabled]="saving()">
+          @if (saving()) {
+            <span class="spinner spinner--white"></span> Enregistrement…
+          } @else {
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+              <polyline points="17 21 17 13 7 13 7 21"/>
+              <polyline points="7 3 7 8 15 8"/>
+            </svg>
+            {{ modalMode() === 'edit' ? 'Mettre à jour' : "Créer l'agent" }}
+          }
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════
+       MODAL — Voir le détail d'un agent
+  ══════════════════════════════════════════════════════════════ -->
+  <div class="modal-overlay" [class.open]="modalMode() === 'view'">
+    <div class="modal-box usr__view-modal">
+
+      <div class="modal-header">
+        <div class="modal-header-left">
+          <div class="modal-header-icon">
+            <svg width="16" height="16" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+          </div>
+          <div>
+            <h2 class="modal-title">Détail de l'agent</h2>
+            <p class="modal-subtitle">Informations complètes du compte.</p>
+          </div>
+        </div>
+        <button class="modal-close" (click)="closeModal()">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path d="M18 6 6 18M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+
+      @if (selectedAgent(); as a) {
+        <div class="modal-body">
+
+          <!-- Avatar + nom -->
+          <div class="usr__view-hero">
+            <div class="usr__view-avatar">{{ initiales(a.nom, a.prenom) }}</div>
+            <div>
+              <h3 class="usr__view-name">{{ a.nom }} {{ a.prenom }}</h3>
+              <span class="badge-status" [class]="'badge-status ' + getStatut(a.statutUser?.id).css">
+                {{ getStatut(a.statutUser?.id).label }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Récap champs -->
+          <div class="recap-section">
+            <div class="recap-header">
+              <div class="recap-header-icon">
+                <svg width="16" height="16" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24">
+                  <circle cx="12" cy="12" r="10"/>
+                  <line x1="12" y1="8" x2="12" y2="12"/>
+                  <line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+              </div>
+              <h3>Informations</h3>
+            </div>
+            <div class="recap-body">
+              <div class="recap-grid">
+                <div class="recap-field">
+                  <span class="recap-field-label">Email</span>
+                  <span class="recap-field-value">{{ a.email }}</span>
+                </div>
+                <div class="recap-field">
+                  <span class="recap-field-label">Téléphone</span>
+                  <span class="recap-field-value">{{ a.telephone }}</span>
+                </div>
+                <div class="recap-field">
+                  <span class="recap-field-label">Structure</span>
+                  <span class="recap-field-value">{{ a.structure?.nom ?? '—' }}</span>
+                </div>
+                <div class="recap-field">
+                  <span class="recap-field-label">Rôle</span>
+                  <span class="recap-field-value">{{ a.roleUser?.nom ?? '—' }}</span>
+                </div>
+                <div class="recap-field">
+                  <span class="recap-field-label">Créé le</span>
+                  <span class="recap-field-value">{{ a.creation | date:'dd/MM/yyyy' }}</span>
+                </div>
+                <div class="recap-field">
+                  <span class="recap-field-label">Modifié le</span>
+                  <span class="recap-field-value">{{ a.modification | date:'dd/MM/yyyy' }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      }
+
+      <div class="modal-footer">
+        <button class="btn-ghost" (click)="closeModal()">Fermer</button>
+        <button class="btn-primary-main" (click)="selectedAgent() && openEdit(selectedAgent()!)">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+          </svg>
+          Modifier
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════
+       MODAL — Confirmer suppression
+  ══════════════════════════════════════════════════════════════ -->
+  <div class="modal-overlay" [class.open]="modalMode() === 'delete'">
+    <div class="modal-box str__modal-delete">
+
+      <div class="modal-header str__modal-header--danger">
+        <div class="modal-header-left">
+          <div class="modal-header-icon">
+            <svg width="16" height="16" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24">
+              <polyline points="3 6 5 6 21 6"/>
+              <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+            </svg>
+          </div>
+          <div>
+            <h2 class="modal-title">Confirmer la suppression</h2>
+            <p class="modal-subtitle">Cette action est irréversible.</p>
+          </div>
+        </div>
+        <button class="modal-close" (click)="closeModal()">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path d="M18 6 6 18M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="str__delete-confirm">
+          <div class="str__delete-icon">
+            <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+              <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+              <line x1="12" y1="9" x2="12" y2="13"/>
+              <line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+          </div>
+          <p class="str__delete-text">
+            Vous allez supprimer le compte de
+            <strong>{{ selectedAgent()?.nom }} {{ selectedAgent()?.prenom }}</strong>.
+            Cet agent perdra tout accès au système. Voulez-vous continuer ?
+          </p>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-ghost" (click)="closeModal()" [disabled]="saving()">Annuler</button>
+        <button class="btn-danger str__btn-danger-full" (click)="confirmDelete()" [disabled]="saving()">
+          @if (saving()) {
+            <span class="spinner"></span> Suppression…
+          } @else {
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <polyline points="3 6 5 6 21 6"/>
+              <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+            </svg>
+            Supprimer définitivement
+          }
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════
+       TOASTS
+  ══════════════════════════════════════════════════════════════ -->
+  <div class="str__toast-container">
+    @for (t of toasts(); track t.id) {
+      <div class="str__toast"
+           [class.str__toast--visible]="t.visible"
+           [class.str__toast--success]="t.type === 'success'"
+           [class.str__toast--error]="t.type === 'error'"
+           [class.str__toast--info]="t.type === 'info'">
+        <div class="str__toast-icon">
+          @if (t.type === 'success') {
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>
+          }
+          @if (t.type === 'error') {
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>
+          }
+          @if (t.type === 'info') {
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          }
+        </div>
+        <span class="str__toast-message">{{ t.message }}</span>
+        <button class="str__toast-close" (click)="dismissToast(t.id)">
+          <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+    }
+  </div>
+
+</div>
