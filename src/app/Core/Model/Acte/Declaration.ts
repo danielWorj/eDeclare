@@ -2,6 +2,7 @@ import { Enfant } from "../Enfant/Enfant";
 import { Hopital } from "../Etablissement/Hopital";
 import { Mairie } from "../Etablissement/Mairie";
 import { Parent } from "../User/Parent";
+import { PieceJointeDeclaration } from "./PieceJointeDeclaration";
 
 export interface Declaration {
     id: number;
@@ -10,4 +11,9 @@ export interface Declaration {
     mairie:Mairie; 
     enfant: Enfant;
     mere: Parent;
+}
+
+export interface DeclarationPiece{
+    declaration : Declaration; 
+    pieces : PieceJointeDeclaration[]; 
 }

@@ -41,6 +41,10 @@ export const eHAllSystemEndPoints ={
             allMairie : `${acteBaseUrl}/all/bymairie/`,
             declare : `${acteBaseUrl}/create`,
             update : `${acteBaseUrl}/update`,
+            delete : `${acteBaseUrl}/delete/`,
+            PieceJointe:{
+                allbydeclaration: `${acteBaseUrl}/pieces/`
+            }
         }, 
         ActeNaissance :{
             allMairie : `${acteBaseUrl}/acte/all/bymairie/`,

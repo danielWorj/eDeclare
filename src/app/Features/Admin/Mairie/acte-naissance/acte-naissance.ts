@@ -362,7 +362,7 @@ export class ActeNaissanceC implements AfterViewInit, OnDestroy {
     this.isLoading.set(true);
     this.acteService.getAllActeNaissanceByMairie(this.idMairie()).subscribe({
       next: (data: ActeNaissance[]) => {
-        this.listActeNaissance.set(data);
+        this.listActeNaissance.set(data.reverse());
         this.isLoading.set(false);
         this.currentPage.set(1);
       },

@@ -1,1 +1,1031 @@
-<p>tele-declaration works!</p>
+<!-- ══════════════════════════════════════════════════════════════════════
+     TOASTS
+     ══════════════════════════════════════════════════════════════════════ -->
+<div class="toast-container">
+  @if (successMessage()) {
+    <div class="toast toast--success" role="alert">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <polyline points="20 6 9 17 4 12"/>
+      </svg>
+      <span>{{ successMessage() }}</span>
+    </div>
+  }
+  @if (errorMessage()) {
+    <div class="toast toast--error" role="alert">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <circle cx="12" cy="12" r="10"/>
+        <line x1="12" y1="8" x2="12" y2="12"/>
+        <line x1="12" y1="16" x2="12.01" y2="16"/>
+      </svg>
+      <span>{{ errorMessage() }}</span>
+    </div>
+  }
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     PAGE PRINCIPALE
+     ══════════════════════════════════════════════════════════════════════ -->
+<div class="dash-section" id="section-declarations">
+
+  <!-- ── En-tête ───────────────────────────────────────────────────────── -->
+  <div class="page-header">
+    <div class="page-header-left">
+      <div class="page-eyebrow">État civil</div>
+      <h1 class="page-title">Télédéclarations de naissance</h1>
+      <div class="page-subtitle">Gestion des déclarations de naissance reçues par la mairie</div>
+    </div>
+    <button class="btn-primary-main" (click)="$event.stopPropagation(); openModalAdd()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+      </svg>
+      Nouvelle déclaration
+    </button>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       KPI
+       ══════════════════════════════════════════════════════════════════════ -->
+  <div class="kpi-grid mb-4">
+
+    <!-- Total déclarations -->
+    <div class="kpi-card kpi-card--blue">
+      <div class="kpi-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+      </div>
+      <div class="kpi-body">
+        <div class="kpi-value">{{ totalDeclarations() }}</div>
+        <div class="kpi-label">Total déclarations</div>
+      </div>
+      <div class="kpi-trend kpi-trend--neutral">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/>
+          <line x1="8" y1="18" x2="21" y2="18"/>
+        </svg>
+        Cumul total
+      </div>
+    </div>
+
+    <!-- Ce mois -->
+    <div class="kpi-card kpi-card--green">
+      <div class="kpi-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+          <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
+          <line x1="3" y1="10" x2="21" y2="10"/>
+        </svg>
+      </div>
+      <div class="kpi-body">
+        <div class="kpi-value">{{ declarationsDuMois() }}</div>
+        <div class="kpi-label">Déclarations ce mois</div>
+      </div>
+      <div class="kpi-trend kpi-trend--up">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+          <polyline points="17 6 23 6 23 12"/>
+        </svg>
+        Mois en cours
+      </div>
+    </div>
+
+    <!-- Cette semaine -->
+    <div class="kpi-card kpi-card--gold">
+      <div class="kpi-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <polyline points="12 6 12 12 16 14"/>
+        </svg>
+      </div>
+      <div class="kpi-body">
+        <div class="kpi-value">{{ declarationsDeLaSemaine() }}</div>
+        <div class="kpi-label">Déclarations cette semaine</div>
+      </div>
+      <div class="kpi-trend kpi-trend--neutral">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+        </svg>
+        7 derniers jours
+      </div>
+    </div>
+
+    <!-- Résultats filtrés -->
+    <div class="kpi-card kpi-card--rose">
+      <div class="kpi-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+      </div>
+      <div class="kpi-body">
+        <div class="kpi-value">{{ declarationsFiltered() }}</div>
+        <div class="kpi-label">Résultats filtrés</div>
+      </div>
+      <div class="kpi-trend kpi-trend--neutral">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+        </svg>
+        Selon recherche
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       GRAPHIQUES
+       ══════════════════════════════════════════════════════════════════════ -->
+  <div class="charts-row mb-4">
+
+    <div class="card-panel chart-panel">
+      <div class="card-panel-header">
+        <div>
+          <div class="card-panel-title">Évolution des déclarations</div>
+          <div style="font-size:11.5px;color:var(--text-muted);margin-top:2px;">Par mois (6 derniers mois)</div>
+        </div>
+        <div class="chart-badge chart-badge--blue">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+          </svg>
+          Ligne
+        </div>
+      </div>
+      <div class="chart-wrapper">
+        <canvas #chartDecl></canvas>
+      </div>
+    </div>
+
+    <div class="card-panel chart-panel">
+      <div class="card-panel-header">
+        <div>
+          <div class="card-panel-title">Répartition mensuelle</div>
+          <div style="font-size:11.5px;color:var(--text-muted);margin-top:2px;">Déclarations par mois</div>
+        </div>
+        <div class="chart-badge chart-badge--gold">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="18" y="3" width="4" height="18"/><rect x="10" y="8" width="4" height="13"/>
+            <rect x="2" y="13" width="4" height="8"/>
+          </svg>
+          Barres
+        </div>
+      </div>
+      <div class="chart-wrapper">
+        <canvas #chartMois></canvas>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── Barre de recherche ────────────────────────────────────────────── -->
+  <div class="card-panel mb-4">
+    <div class="card-panel-body" style="padding:1rem 1.5rem;">
+      <div class="filters-row">
+        <div class="filter-search">
+          <input type="text"
+                 class="form-control-main"
+                 placeholder="🔍  Rechercher par nom de l'enfant ou de la mère…"
+                 [value]="searchTerm()"
+                 (input)="onSearch($event)">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Tableau des déclarations ──────────────────────────────────────── -->
+  <div class="card-panel">
+    <div class="card-panel-header">
+      <div class="card-panel-title">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+        </svg>
+        Liste des télédéclarations
+      </div>
+      <span style="font-size:12px;color:var(--text-muted);">
+        {{ filteredList().length }} déclaration(s) trouvée(s)
+      </span>
+    </div>
+
+    @if (isLoading()) {
+      <div class="spinner-wrapper">
+        <div class="spinner"></div>
+        <span class="spinner-label">Chargement des déclarations…</span>
+      </div>
+    } @else {
+
+      <div class="table-responsive">
+        <table class="table-custom">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Enfant</th>
+              <th>Date de naissance</th>
+              <th>Mère</th>
+              <th>Hôpital</th>
+              <th>Date déclaration</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (decl of paginatedList(); track decl.id; let i = $index) {
+              <tr (click)="openModalView(decl)" style="cursor:pointer;">
+                <td>
+                  <span class="decl-ref">#{{ (currentPage() - 1) * pageSize + i + 1 }}</span>
+                </td>
+                <td>
+                  <span style="font-weight:600;">
+                    {{ decl.enfant?.prenom ?? '' }} {{ decl.enfant?.nom ?? '' }}
+                  </span>
+                  <br>
+                  <small style="color:var(--text-muted);font-size:11px;">
+                    {{ decl.enfant?.sexe?.libelle ?? '' }}
+                  </small>
+                </td>
+                <td class="td-muted">
+                  {{ decl.enfant?.dateNaissance ? (decl.enfant.dateNaissance | date:'dd/MM/yyyy') : '—' }}
+                </td>
+                <td>
+                  <div style="font-size:13px;font-weight:600;">
+                    {{ decl.mere?.prenom ?? '' }} {{ decl.mere?.nom ?? '' }}
+                  </div>
+                  <div style="font-size:11.5px;color:var(--text-muted);">
+                    {{ decl.mere?.telephone ?? '' }}
+                  </div>
+                </td>
+                <td style="font-size:12px;color:var(--text-muted);">
+                  {{ decl.hopital?.nom ?? '—' }}
+                </td>
+                <td class="td-muted">
+                  {{ decl.date ? (decl.date | date:'dd MMM yyyy') : '—' }}
+                </td>
+                <td>
+                  <div class="d-flex gap-1" (click)="$event.stopPropagation()">
+                    <button class="btn-icon" title="Consulter"
+                            (click)="$event.stopPropagation(); openModalView(decl)">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                        <circle cx="12" cy="12" r="3"/>
+                      </svg>
+                    </button>
+                    <button class="btn-icon" title="Modifier"
+                            (click)="$event.stopPropagation(); openModalEdit(decl)">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                      </svg>
+                    </button>
+                    <button class="btn-icon btn-icon--danger" title="Supprimer"
+                            (click)="openModalDelete(decl, $event)">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="3 6 5 6 21 6"/>
+                        <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                        <path d="M10 11v6M14 11v6"/>
+                        <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+                      </svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="7" class="table-empty">
+                  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--border)" stroke-width="1.5">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                    <circle cx="9" cy="7" r="4"/>
+                  </svg>
+                  <p>Aucune déclaration ne correspond aux critères sélectionnés</p>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Vue cartes (mobile) -->
+      <div class="cards-mobile">
+        @for (decl of paginatedList(); track decl.id) {
+          <div class="mobile-card" (click)="openModalView(decl)">
+            <div class="mobile-card-header">
+              <span style="font-weight:700;">{{ decl.enfant?.prenom }} {{ decl.enfant?.nom }}</span>
+              <span class="td-muted" style="font-size:12px;">{{ decl.date | date:'dd/MM/yyyy' }}</span>
+            </div>
+            <div class="mobile-card-body">
+              <div style="font-size:12px;color:var(--text-muted);">
+                Mère : {{ decl.mere?.prenom }} {{ decl.mere?.nom }}
+              </div>
+              <div style="font-size:12px;color:var(--text-muted);">
+                Hôpital : {{ decl.hopital?.nom ?? '—' }}
+              </div>
+            </div>
+            <div class="mobile-card-actions" (click)="$event.stopPropagation()">
+              <button class="btn-icon" (click)="$event.stopPropagation(); openModalView(decl)">Voir</button>
+              <button class="btn-icon" (click)="$event.stopPropagation(); openModalEdit(decl)">Modifier</button>
+              <button class="btn-icon btn-icon--danger" (click)="openModalDelete(decl, $event)">Suppr.</button>
+            </div>
+          </div>
+        } @empty {
+          <div class="table-empty"><p>Aucune déclaration trouvée</p></div>
+        }
+      </div>
+
+      <!-- Pagination -->
+      <div class="table-pagination">
+        <button class="btn-page" [disabled]="currentPage() === 1" (click)="setPage(currentPage() - 1)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="15 18 9 12 15 6"/>
+          </svg>
+        </button>
+        @for (p of pages(); track p) {
+          <button class="btn-page" [class.btn-page--active]="p === currentPage()" (click)="setPage(p)">
+            {{ p }}
+          </button>
+        }
+        <button class="btn-page" [disabled]="currentPage() === totalPages()" (click)="setPage(currentPage() + 1)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
+        </button>
+      </div>
+    }
+
+  </div><!-- /card-panel -->
+
+</div><!-- /dash-section -->
+
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     MODAL — CRÉATION
+     ══════════════════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" [class.open]="showModalAdd()" (click)="closeModalAdd()">
+  @if (showModalAdd()) {
+    <div class="modal-box modal-box--lg" (click)="$event.stopPropagation()" role="dialog" aria-modal="true">
+
+      <div class="modal-header">
+        <h2 class="modal-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+          Nouvelle télédéclaration de naissance
+        </h2>
+        <button class="modal-close" (click)="closeModalAdd()">✕</button>
+      </div>
+
+      <div class="modal-body" [formGroup]="declarationAddFb">
+
+        <!-- Informations générales -->
+        <div class="form-section">
+          <div class="form-section-title">Informations générales</div>
+          <div class="form-grid form-grid--2">
+
+            <div class="form-group">
+              <label class="form-label form-label--required">Date de déclaration</label>
+              <input type="date" class="form-control-main" formControlName="date"
+                     [class.is-invalid]="ctrl(declarationAddFb,'date').invalid && ctrl(declarationAddFb,'date').touched">
+              @if (ctrl(declarationAddFb,'date').invalid && ctrl(declarationAddFb,'date').touched) {
+                <div class="form-error">Ce champ est obligatoire.</div>
+              }
+            </div>
+
+            <div class="form-group">
+              <label class="form-label form-label--required">ID Hôpital de naissance</label>
+              <input type="number" class="form-control-main" formControlName="hopital"
+                     placeholder="Identifiant de l'hôpital"
+                     [class.is-invalid]="ctrl(declarationAddFb,'hopital').invalid && ctrl(declarationAddFb,'hopital').touched">
+              @if (ctrl(declarationAddFb,'hopital').invalid && ctrl(declarationAddFb,'hopital').touched) {
+                <div class="form-error">Ce champ est obligatoire.</div>
+              }
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Informations de l'enfant -->
+        <div class="form-section">
+          <div class="form-section-title">Informations de l'enfant</div>
+          <div class="form-grid form-grid--2">
+
+            <div class="form-group">
+              <label class="form-label form-label--required">Nom</label>
+              <input type="text" class="form-control-main" formControlName="nomEnfant" placeholder="Nom de l'enfant"
+                     [class.is-invalid]="ctrl(declarationAddFb,'nomEnfant').invalid && ctrl(declarationAddFb,'nomEnfant').touched">
+              @if (ctrl(declarationAddFb,'nomEnfant').invalid && ctrl(declarationAddFb,'nomEnfant').touched) {
+                <div class="form-error">Ce champ est obligatoire.</div>
+              }
+            </div>
+
+            <div class="form-group">
+              <label class="form-label form-label--required">Prénom</label>
+              <input type="text" class="form-control-main" formControlName="prenomEnfant" placeholder="Prénom de l'enfant"
+                     [class.is-invalid]="ctrl(declarationAddFb,'prenomEnfant').invalid && ctrl(declarationAddFb,'prenomEnfant').touched">
+              @if (ctrl(declarationAddFb,'prenomEnfant').invalid && ctrl(declarationAddFb,'prenomEnfant').touched) {
+                <div class="form-error">Ce champ est obligatoire.</div>
+              }
+            </div>
+
+            <div class="form-group">
+              <label class="form-label form-label--required">Date de naissance</label>
+              <input type="date" class="form-control-main" formControlName="dateNaissanceEnfant"
+                     [class.is-invalid]="ctrl(declarationAddFb,'dateNaissanceEnfant').invalid && ctrl(declarationAddFb,'dateNaissanceEnfant').touched">
+              @if (ctrl(declarationAddFb,'dateNaissanceEnfant').invalid && ctrl(declarationAddFb,'dateNaissanceEnfant').touched) {
+                <div class="form-error">Ce champ est obligatoire.</div>
+              }
+            </div>
+
+            <div class="form-group">
+              <label class="form-label form-label--required">Lieu de naissance</label>
+              <input type="text" class="form-control-main" formControlName="lieuNaissanceEnfant" placeholder="Ville / Établissement"
+                     [class.is-invalid]="ctrl(declarationAddFb,'lieuNaissanceEnfant').invalid && ctrl(declarationAddFb,'lieuNaissanceEnfant').touched">
+              @if (ctrl(declarationAddFb,'lieuNaissanceEnfant').invalid && ctrl(declarationAddFb,'lieuNaissanceEnfant').touched) {
+                <div class="form-error">Ce champ est obligatoire.</div>
+              }
+            </div>
+
+            <div class="form-group">
+              <label class="form-label form-label--required">Sexe</label>
+              <select class="form-control-main" formControlName="sexeEnfant"
+                      [class.is-invalid]="ctrl(declarationAddFb,'sexeEnfant').invalid && ctrl(declarationAddFb,'sexeEnfant').touched">
+                <option [ngValue]="null" disabled>— Sélectionner —</option>
+                <option [ngValue]="1">Masculin</option>
+                <option [ngValue]="2">Féminin</option>
+              </select>
+              @if (ctrl(declarationAddFb,'sexeEnfant').invalid && ctrl(declarationAddFb,'sexeEnfant').touched) {
+                <div class="form-error">Ce champ est obligatoire.</div>
+              }
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Informations de la mère -->
+        <div class="form-section">
+          <div class="form-section-title">Informations de la mère</div>
+          <div class="form-grid form-grid--2">
+
+            <div class="form-group">
+              <label class="form-label form-label--required">Nom</label>
+              <input type="text" class="form-control-main" formControlName="nomMere" placeholder="Nom de la mère"
+                     [class.is-invalid]="ctrl(declarationAddFb,'nomMere').invalid && ctrl(declarationAddFb,'nomMere').touched">
+              @if (ctrl(declarationAddFb,'nomMere').invalid && ctrl(declarationAddFb,'nomMere').touched) {
+                <div class="form-error">Ce champ est obligatoire.</div>
+              }
+            </div>
+
+            <div class="form-group">
+              <label class="form-label form-label--required">Prénom</label>
+              <input type="text" class="form-control-main" formControlName="prenomMere" placeholder="Prénom de la mère"
+                     [class.is-invalid]="ctrl(declarationAddFb,'prenomMere').invalid && ctrl(declarationAddFb,'prenomMere').touched">
+              @if (ctrl(declarationAddFb,'prenomMere').invalid && ctrl(declarationAddFb,'prenomMere').touched) {
+                <div class="form-error">Ce champ est obligatoire.</div>
+              }
+            </div>
+
+            <div class="form-group">
+              <label class="form-label form-label--required">Téléphone</label>
+              <input type="tel" class="form-control-main" formControlName="telephoneMere" placeholder="+237 6XX XXX XXX"
+                     [class.is-invalid]="ctrl(declarationAddFb,'telephoneMere').invalid && ctrl(declarationAddFb,'telephoneMere').touched">
+              @if (ctrl(declarationAddFb,'telephoneMere').invalid && ctrl(declarationAddFb,'telephoneMere').touched) {
+                <div class="form-error">Ce champ est obligatoire.</div>
+              }
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Pièce jointe -->
+        <div class="form-section">
+          <div class="form-section-title">Pièce jointe (optionnel)</div>
+          <div class="form-group">
+            <label class="form-label">Document justificatif</label>
+            <div class="file-drop-zone">
+              <label class="file-label" for="input-piece-add">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                  <polyline points="17 8 12 3 7 8"/>
+                  <line x1="12" y1="3" x2="12" y2="15"/>
+                </svg>
+                <span>Choisir un fichier (JPG, PNG, PDF)</span>
+              </label>
+              <input id="input-piece-add" type="file" accept=".jpg,.jpeg,.png,.pdf" class="file-input-hidden"
+                     (change)="onSelectPieceJointe($event)">
+              <div class="file-name-row">
+                <span class="file-name">{{ pieceJointeNom() }}</span>
+                @if (pieceJointe) {
+                  <button type="button" class="file-remove" (click)="supprimerPieceJointe()">✕</button>
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /modal-body -->
+
+      <div class="modal-footer">
+        <button class="btn-outline-main" (click)="closeModalAdd()" [disabled]="isSubmitting()">Annuler</button>
+        <button class="btn-primary-main" (click)="createDeclaration()" [disabled]="isSubmitting()">
+          @if (isSubmitting()) {
+            <span class="btn-spinner"></span>
+            Enregistrement…
+          } @else {
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+            Enregistrer
+          }
+        </button>
+      </div>
+
+    </div>
+  }
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     MODAL — CONSULTATION
+     ══════════════════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" [class.open]="showModalView() && !!declarationSelected()" (click)="closeModalView()">
+  @if (showModalView() && declarationSelected()) {
+    <div class="modal-box modal-box--lg" (click)="$event.stopPropagation()" role="dialog" aria-modal="true">
+
+      <div class="modal-header modal-header--view">
+        <h2 class="modal-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+          Déclaration — {{ declarationSelected()!.enfant?.prenom }} {{ declarationSelected()!.enfant?.nom }}
+        </h2>
+        <button class="modal-close" (click)="closeModalView()">✕</button>
+      </div>
+
+      <div class="modal-body">
+
+        <!-- Enfant -->
+        <div class="recap-section">
+          <div class="recap-header">
+            <div class="recap-header-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="8" r="4"/>
+                <path d="M6 20v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/>
+              </svg>
+            </div>
+            <h3>Enfant</h3>
+          </div>
+          <div class="recap-body">
+            <div class="recap-grid">
+              <div class="recap-field">
+                <span class="recap-field-label">Prénom</span>
+                <span class="recap-field-value">{{ declarationSelected()!.enfant?.prenom ?? '—' }}</span>
+              </div>
+              <div class="recap-field">
+                <span class="recap-field-label">Nom</span>
+                <span class="recap-field-value">{{ declarationSelected()!.enfant?.nom ?? '—' }}</span>
+              </div>
+              <div class="recap-field">
+                <span class="recap-field-label">Date de naissance</span>
+                <span class="recap-field-value">
+                  {{ declarationSelected()!.enfant?.dateNaissance | date:'dd/MM/yyyy' }}
+                </span>
+              </div>
+              <div class="recap-field">
+                <span class="recap-field-label">Sexe</span>
+                <span class="recap-field-value">{{ declarationSelected()!.enfant?.sexe?.libelle }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mère -->
+        <div class="recap-section" style="margin-top:1rem;">
+          <div class="recap-header" style="background:#2e7d32;">
+            <div class="recap-header-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+              </svg>
+            </div>
+            <h3>Mère</h3>
+          </div>
+          <div class="recap-body">
+            <div class="recap-grid">
+              <div class="recap-field">
+                <span class="recap-field-label">Nom complet</span>
+                <span class="recap-field-value">
+                  {{ declarationSelected()!.mere?.prenom }} {{ declarationSelected()!.mere?.nom }}
+                </span>
+              </div>
+              <div class="recap-field">
+                <span class="recap-field-label">Téléphone</span>
+                <span class="recap-field-value">{{ declarationSelected()!.mere?.telephone ?? '—' }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Établissements -->
+        <div class="recap-section" style="margin-top:1rem;">
+          <div class="recap-header" style="background:var(--gold);">
+            <div class="recap-header-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                <polyline points="9 22 9 12 15 12 15 22"/>
+              </svg>
+            </div>
+            <h3>Établissements</h3>
+          </div>
+          <div class="recap-body">
+            <div class="recap-grid">
+              <div class="recap-field">
+                <span class="recap-field-label">Hôpital de naissance</span>
+                <span class="recap-field-value">{{ declarationSelected()!.hopital?.nom ?? '—' }}</span>
+              </div>
+              <div class="recap-field">
+                <span class="recap-field-label">Mairie réceptrice</span>
+                <span class="recap-field-value">{{ declarationSelected()!.mairie?.nom ?? '—' }}</span>
+              </div>
+              <div class="recap-field">
+                <span class="recap-field-label">Date de déclaration</span>
+                <span class="recap-field-value">{{ declarationSelected()!.date | date:'dd/MM/yyyy' }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Pièces jointes ─────────────────────────────────────────── -->
+        <div class="recap-section pieces-jointes-section" style="margin-top:1rem;">
+          <div class="recap-header" style="background:#4a1f8a;">
+            <div class="recap-header-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
+              </svg>
+            </div>
+            <h3>Pièces jointes</h3>
+          </div>
+          <div class="recap-body">
+
+            @if (!declarationPieceSelected()?.pieces?.length) {
+              <!-- Aucun fichier -->
+              <div class="pj-empty">
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                  <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
+                </svg>
+                <span>Aucune pièce jointe pour cette déclaration</span>
+              </div>
+            } @else {
+
+              <!-- Groupement par type -->
+              @for (groupe of piecesJointesParType(); track groupe.type) {
+                <div class="pj-type-group">
+
+                  <div class="pj-type-label">
+                    @if (groupe.isPdf) {
+                      <!-- Icône PDF -->
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14 2 14 8 20 8"/>
+                        <line x1="9" y1="15" x2="15" y2="15"/>
+                      </svg>
+                    } @else {
+                      <!-- Icône Image -->
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                        <circle cx="8.5" cy="8.5" r="1.5"/>
+                        <polyline points="21 15 16 10 5 21"/>
+                      </svg>
+                    }
+                    {{ groupe.type }}
+                    <span class="pj-count-badge">{{ groupe.pieces.length }}</span>
+                  </div>
+
+                  <div class="pj-grid">
+                    @for (pj of groupe.pieces; track pj.id; let idx = $index) {
+                      <div class="pj-card" (click)="openLightbox(groupe.pieces, idx)">
+
+                        <div class="pj-thumb" [class.pj-thumb--pdf]="isPdf(pj.chemin)">
+                          @if (isPdf(pj.chemin)) {
+                            <!-- Vignette PDF -->
+                            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                              <polyline points="14 2 14 8 20 8"/>
+                              <line x1="9" y1="15" x2="15" y2="15"/>
+                            </svg>
+                            <span>PDF</span>
+                          } @else {
+                            <!-- Vignette image -->
+                            <img [src]="pj.chemin" [alt]="pj.type?.nom ?? 'pièce jointe'"
+                                 loading="lazy" (error)="onImgError($event)">
+                          }
+                          <span class="pj-thumb-badge">{{ isPdf(pj.chemin) ? 'PDF' : 'IMG' }}</span>
+                        </div>
+
+                        <div class="pj-card-footer">
+                          <span class="pj-card-name" [title]="fileNameFromPath(pj.chemin)">
+                            {{ fileNameFromPath(pj.chemin) }}
+                          </span>
+                          <button class="pj-card-open" type="button"
+                                  (click)="$event.stopPropagation(); openLightbox(groupe.pieces, idx)"
+                                  title="Prévisualiser">
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                              <circle cx="12" cy="12" r="3"/>
+                            </svg>
+                          </button>
+                        </div>
+
+                      </div>
+                    }
+                  </div>
+
+                </div>
+              }
+
+            }
+          </div>
+        </div>
+
+      </div><!-- /modal-body -->
+
+      <div class="modal-footer">
+        <button class="btn-outline-main" (click)="closeModalView()">Fermer</button>
+        <button class="btn-primary-main" (click)="$event.stopPropagation(); openModalEdit(declarationSelected()!)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+          </svg>
+          Modifier
+        </button>
+      </div>
+
+    </div>
+  }
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     MODAL — ÉDITION
+     ══════════════════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" [class.open]="showModalEdit()" (click)="closeModalEdit()">
+  @if (showModalEdit()) {
+    <div class="modal-box modal-box--lg" (click)="$event.stopPropagation()" role="dialog" aria-modal="true">
+
+      <div class="modal-header">
+        <h2 class="modal-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+          </svg>
+          Modifier la déclaration
+        </h2>
+        <button class="modal-close" (click)="closeModalEdit()">✕</button>
+      </div>
+
+      <div class="modal-body" [formGroup]="declarationEditFb">
+
+        <!-- Informations générales -->
+        <div class="form-section">
+          <div class="form-section-title">Informations générales</div>
+          <div class="form-grid form-grid--2">
+
+            <div class="form-group">
+              <label class="form-label form-label--required">Date de déclaration</label>
+              <input type="date" class="form-control-main" formControlName="date"
+                     [class.is-invalid]="ctrl(declarationEditFb,'date').invalid && ctrl(declarationEditFb,'date').touched">
+              @if (ctrl(declarationEditFb,'date').invalid && ctrl(declarationEditFb,'date').touched) {
+                <div class="form-error">Ce champ est obligatoire.</div>
+              }
+            </div>
+
+            <div class="form-group">
+              <label class="form-label form-label--required">ID Hôpital de naissance</label>
+              <input type="number" class="form-control-main" formControlName="hopital"
+                     [class.is-invalid]="ctrl(declarationEditFb,'hopital').invalid && ctrl(declarationEditFb,'hopital').touched">
+              @if (ctrl(declarationEditFb,'hopital').invalid && ctrl(declarationEditFb,'hopital').touched) {
+                <div class="form-error">Ce champ est obligatoire.</div>
+              }
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Informations de l'enfant -->
+        <div class="form-section">
+          <div class="form-section-title">Informations de l'enfant</div>
+          <div class="form-grid form-grid--2">
+
+            <div class="form-group">
+              <label class="form-label form-label--required">Nom</label>
+              <input type="text" class="form-control-main" formControlName="nomEnfant"
+                     [class.is-invalid]="ctrl(declarationEditFb,'nomEnfant').invalid && ctrl(declarationEditFb,'nomEnfant').touched">
+              @if (ctrl(declarationEditFb,'nomEnfant').invalid && ctrl(declarationEditFb,'nomEnfant').touched) {
+                <div class="form-error">Ce champ est obligatoire.</div>
+              }
+            </div>
+
+            <div class="form-group">
+              <label class="form-label form-label--required">Prénom</label>
+              <input type="text" class="form-control-main" formControlName="prenomEnfant"
+                     [class.is-invalid]="ctrl(declarationEditFb,'prenomEnfant').invalid && ctrl(declarationEditFb,'prenomEnfant').touched">
+              @if (ctrl(declarationEditFb,'prenomEnfant').invalid && ctrl(declarationEditFb,'prenomEnfant').touched) {
+                <div class="form-error">Ce champ est obligatoire.</div>
+              }
+            </div>
+
+            <div class="form-group">
+              <label class="form-label form-label--required">Date de naissance</label>
+              <input type="date" class="form-control-main" formControlName="dateNaissanceEnfant"
+                     [class.is-invalid]="ctrl(declarationEditFb,'dateNaissanceEnfant').invalid && ctrl(declarationEditFb,'dateNaissanceEnfant').touched">
+              @if (ctrl(declarationEditFb,'dateNaissanceEnfant').invalid && ctrl(declarationEditFb,'dateNaissanceEnfant').touched) {
+                <div class="form-error">Ce champ est obligatoire.</div>
+              }
+            </div>
+
+            <div class="form-group">
+              <label class="form-label form-label--required">Lieu de naissance</label>
+              <input type="text" class="form-control-main" formControlName="lieuNaissanceEnfant"
+                     [class.is-invalid]="ctrl(declarationEditFb,'lieuNaissanceEnfant').invalid && ctrl(declarationEditFb,'lieuNaissanceEnfant').touched">
+              @if (ctrl(declarationEditFb,'lieuNaissanceEnfant').invalid && ctrl(declarationEditFb,'lieuNaissanceEnfant').touched) {
+                <div class="form-error">Ce champ est obligatoire.</div>
+              }
+            </div>
+
+            <div class="form-group">
+              <label class="form-label form-label--required">Sexe</label>
+              <select class="form-control-main" formControlName="sexeEnfant"
+                      [class.is-invalid]="ctrl(declarationEditFb,'sexeEnfant').invalid && ctrl(declarationEditFb,'sexeEnfant').touched">
+                <option [ngValue]="null" disabled>— Sélectionner —</option>
+                <option [ngValue]="1">Masculin</option>
+                <option [ngValue]="2">Féminin</option>
+              </select>
+              @if (ctrl(declarationEditFb,'sexeEnfant').invalid && ctrl(declarationEditFb,'sexeEnfant').touched) {
+                <div class="form-error">Ce champ est obligatoire.</div>
+              }
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Informations de la mère -->
+        <div class="form-section">
+          <div class="form-section-title">Informations de la mère</div>
+          <div class="form-grid form-grid--2">
+
+            <div class="form-group">
+              <label class="form-label form-label--required">Nom</label>
+              <input type="text" class="form-control-main" formControlName="nomMere"
+                     [class.is-invalid]="ctrl(declarationEditFb,'nomMere').invalid && ctrl(declarationEditFb,'nomMere').touched">
+              @if (ctrl(declarationEditFb,'nomMere').invalid && ctrl(declarationEditFb,'nomMere').touched) {
+                <div class="form-error">Ce champ est obligatoire.</div>
+              }
+            </div>
+
+            <div class="form-group">
+              <label class="form-label form-label--required">Prénom</label>
+              <input type="text" class="form-control-main" formControlName="prenomMere"
+                     [class.is-invalid]="ctrl(declarationEditFb,'prenomMere').invalid && ctrl(declarationEditFb,'prenomMere').touched">
+              @if (ctrl(declarationEditFb,'prenomMere').invalid && ctrl(declarationEditFb,'prenomMere').touched) {
+                <div class="form-error">Ce champ est obligatoire.</div>
+              }
+            </div>
+
+            <div class="form-group">
+              <label class="form-label form-label--required">Téléphone</label>
+              <input type="tel" class="form-control-main" formControlName="telephoneMere"
+                     [class.is-invalid]="ctrl(declarationEditFb,'telephoneMere').invalid && ctrl(declarationEditFb,'telephoneMere').touched">
+              @if (ctrl(declarationEditFb,'telephoneMere').invalid && ctrl(declarationEditFb,'telephoneMere').touched) {
+                <div class="form-error">Ce champ est obligatoire.</div>
+              }
+            </div>
+
+          </div>
+        </div>
+
+      </div><!-- /modal-body -->
+
+      <div class="modal-footer">
+        <button class="btn-outline-main" (click)="closeModalEdit()" [disabled]="isSubmitting()">Annuler</button>
+        <button class="btn-primary-main" (click)="updateDeclaration()" [disabled]="isSubmitting()">
+          @if (isSubmitting()) {
+            <span class="btn-spinner"></span>
+            Mise à jour…
+          } @else {
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+            Enregistrer
+          }
+        </button>
+      </div>
+
+    </div>
+  }
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     MODAL — CONFIRMATION SUPPRESSION
+     ══════════════════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" [class.open]="showModalDelete()" (click)="closeModalDelete()">
+  @if (showModalDelete() && declarationSelected()) {
+    <div class="modal-box" (click)="$event.stopPropagation()" role="dialog" aria-modal="true">
+
+      <div class="modal-header" style="background:linear-gradient(135deg,#7f1d1d,#dc2626);">
+        <h2 class="modal-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="8" x2="12" y2="12"/>
+            <line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+          Confirmer la suppression
+        </h2>
+        <button class="modal-close" (click)="closeModalDelete()">✕</button>
+      </div>
+
+      <div class="modal-body" style="text-align:center;padding:2rem;">
+        <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="1.5"
+             style="margin-bottom:1rem;">
+          <polyline points="3 6 5 6 21 6"/>
+          <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+          <path d="M10 11v6M14 11v6"/>
+          <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+        </svg>
+        <p style="font-size:15px;font-weight:600;color:var(--text-dark);margin-bottom:.5rem;">
+          Supprimer la déclaration de
+          <strong>{{ declarationSelected()!.enfant?.prenom }} {{ declarationSelected()!.enfant?.nom }}</strong> ?
+        </p>
+        <p style="font-size:13px;color:var(--text-muted);">
+          Cette action est irréversible. La déclaration sera définitivement supprimée.
+        </p>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-outline-main" (click)="closeModalDelete()" [disabled]="isSubmitting()">Annuler</button>
+        <button class="btn-primary-main" style="background:#dc2626;" (click)="confirmDelete()" [disabled]="isSubmitting()">
+          @if (isSubmitting()) {
+            <span class="btn-spinner"></span>
+            Suppression…
+          } @else {
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="3 6 5 6 21 6"/>
+              <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+            </svg>
+            Supprimer
+          }
+        </button>
+      </div>
+
+    </div>
+  }
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     LIGHTBOX — Prévisualisation pièce jointe
+     ══════════════════════════════════════════════════════════════════════ -->
+<div class="lightbox-overlay" [class.open]="showLightbox()" (click)="closeLightbox()">
+
+  <!-- Bouton fermer -->
+  <button class="lightbox-close" (click)="closeLightbox()" title="Fermer">✕</button>
+
+  <!-- Navigation précédent -->
+  <button class="lightbox-nav lightbox-nav--prev"
+          [disabled]="lightboxIndex() === 0"
+          (click)="$event.stopPropagation(); lightboxPrev()"
+          title="Précédent">
+    ‹
+  </button>
+
+  @if (showLightbox() && lightboxPieces().length) {
+    <div class="lightbox-box" (click)="$event.stopPropagation()">
+
+      @if (isPdf(lightboxPieces()[lightboxIndex()].chemin)) {
+        <!-- Prévisualisation PDF -->
+        <iframe class="lightbox-pdf"
+                [src]="getSafeUrl(lightboxPieces()[lightboxIndex()].chemin)"
+                title="Aperçu PDF">
+        </iframe>
+      } @else {
+        <!-- Prévisualisation image -->
+        <img class="lightbox-img"
+             [src]="lightboxPieces()[lightboxIndex()].chemin"
+             [alt]="lightboxPieces()[lightboxIndex()].type?.nom ?? 'pièce jointe'"
+             (error)="onImgError($event)">
+      }
+
+      <div class="lightbox-caption">
+        {{ lightboxPieces()[lightboxIndex()].type?.nom ?? '' }} —
+        {{ fileNameFromPath(lightboxPieces()[lightboxIndex()].chemin) }}
+        ({{ lightboxIndex() + 1 }} / {{ lightboxPieces().length }})
+      </div>
+
+    </div>
+  }
+
+  <!-- Navigation suivant -->
+  <button class="lightbox-nav lightbox-nav--next"
+          [disabled]="lightboxIndex() === lightboxPieces().length - 1"
+          (click)="$event.stopPropagation(); lightboxNext()"
+          title="Suivant">
+    ›
+  </button>
+
+</div>

@@ -5,6 +5,7 @@ import { Observable } from 'rxjs';
 import { Declaration } from '../../Model/Acte/Declaration';
 import { ActeNaissance } from '../../Model/Acte/ActeNaissance';
 import { eHAllSystemEndPoints } from '../../Constants/Endpoints';
+import { PieceJointeDeclaration } from '../../Model/Acte/PieceJointeDeclaration';
 
 @Injectable({
   providedIn: 'root',
@@ -13,8 +14,14 @@ export class ActeService {
 
   constructor(private http: HttpClient) {}
 
-  // ── Déclarations ────────────────────────────────────────────────────────
+  // ══════════════════════════════════════════════════════════════════════
+  // DÉCLARATIONS
+  // ══════════════════════════════════════════════════════════════════════
 
+  /**
+   * Récupère toutes les déclarations d'une mairie.
+   * GET /declaration/all/bymairie/{id}
+   */
   getAllDeclarationByParent(id: number): Observable<Declaration[]> {
     return this.http.get<Declaration[]>(
       eHAllSystemEndPoints.Acte.Declaration.allParent + id
@@ -33,6 +40,10 @@ export class ActeService {
     );
   }
 
+  /**
+   * Crée une nouvelle déclaration de naissance.
+   * POST /declaration/create
+   */
   declarationActeNaissance(formData: FormData): Observable<ServerResponse> {
     return this.http.post<ServerResponse>(
       eHAllSystemEndPoints.Acte.Declaration.declare,
@@ -40,6 +51,10 @@ export class ActeService {
     );
   }
 
+  /**
+   * Met à jour une déclaration existante.
+   * POST /declaration/update
+   */
   misAjourDeclarationActeNaissance(formData: FormData): Observable<ServerResponse> {
     return this.http.post<ServerResponse>(
       eHAllSystemEndPoints.Acte.Declaration.update,
@@ -47,7 +62,19 @@ export class ActeService {
     );
   }
 
-  // ── Actes de naissance ──────────────────────────────────────────────────
+  /**
+   * Supprime une déclaration par son identifiant.
+   * DELETE /declaration/delete/{id}
+   */
+  deleteDeclaration(id: number): Observable<ServerResponse> {
+    return this.http.delete<ServerResponse>(
+      eHAllSystemEndPoints.Acte.Declaration.delete + id
+    );
+  }
+
+  // ══════════════════════════════════════════════════════════════════════
+  // ACTES DE NAISSANCE
+  // ══════════════════════════════════════════════════════════════════════
 
   getAllActeNaissanceByMairie(id: number): Observable<ActeNaissance[]> {
     return this.http.get<ActeNaissance[]>(
@@ -57,7 +84,7 @@ export class ActeService {
 
   /**
    * Crée un nouvel acte de naissance.
-   * Endpoint : POST /eHall/api/declaration/acte/create
+   * POST /declaration/acte/create
    */
   creationActeNaissance(formData: FormData): Observable<ServerResponse> {
     return this.http.post<ServerResponse>(
@@ -68,10 +95,7 @@ export class ActeService {
 
   /**
    * Met à jour un acte de naissance existant.
-   * Endpoint : PUT /eHall/api/declaration/acte/update/{id}
-   *
-   * @param id      identifiant de l'acte à modifier
-   * @param formData données du formulaire (champ "acte" en JSON + fichiers optionnels)
+   * PUT /declaration/acte/update/{id}
    */
   misAjourActeNaissance(id: number, formData: FormData): Observable<ServerResponse> {
     return this.http.put<ServerResponse>(
@@ -82,7 +106,7 @@ export class ActeService {
 
   /**
    * Supprime un acte de naissance.
-   * Endpoint : GET /eHall/api/declaration/acte/delete/{id}
+   * GET /declaration/acte/delete/{id}
    */
   deleteActeNaissance(id: number): Observable<ServerResponse> {
     return this.http.get<ServerResponse>(
@@ -90,10 +114,18 @@ export class ActeService {
     );
   }
 
+  /**
+   * Télécharge le PDF d'un acte de naissance.
+   * GET /declaration/acte/download/{id}
+   */
   downloadActeNaissance(id: number): Observable<Blob> {
-  return this.http.get(
-    eHAllSystemEndPoints.Acte.ActeNaissance.download + id,
-    { responseType: 'blob' }
-  );
+    return this.http.get(
+      eHAllSystemEndPoints.Acte.ActeNaissance.download + id,
+      { responseType: 'blob' }
+    );
+  }
+  //Pieces jointes 
+findPieceJointes(id:number):Observable<PieceJointeDeclaration[]>{
+  return this.http.get<PieceJointeDeclaration[]>(eHAllSystemEndPoints.Acte.Declaration.PieceJointe.allbydeclaration+id);
 }
 }
