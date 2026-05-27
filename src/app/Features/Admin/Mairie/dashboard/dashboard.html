@@ -1,143 +1,280 @@
 <div id="section-dashboard" class="dash-section">
-      <div class="page-header">
-        <div class="page-header-left">
-          <div class="page-eyebrow">Vue d'ensemble</div>
-          <h1 class="page-title">Tableau de bord</h1>
-          <div class="page-subtitle">État civil · Mairie · Exercice 2025</div>
+
+  <!-- ══ Page Header ══════════════════════════════════════════════════════════ -->
+  <div class="page-header">
+    <div class="page-header-left">
+      <div class="page-eyebrow">Vue d'ensemble</div>
+      <h1 class="page-title">Tableau de bord</h1>
+      <div class="page-subtitle">État civil · Mairie · {{ moisCourant() }}</div>
+    </div>
+    <div class="dash-header-actions">
+      <div class="dash-refresh-info">
+        <span class="dash-refresh-dot" [class.loading]="isLoading()"></span>
+        <span style="font-size:12px;color:var(--text-muted);">
+          {{ isLoading() ? 'Chargement…' : 'Mis à jour à ' + formatTime(lastRefresh()) }}
+        </span>
+      </div>
+      <button class="btn-ghost" (click)="refresh()" [disabled]="isLoading()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/>
+          <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+        </svg>
+        Actualiser
+      </button>
+    </div>
+  </div>
+
+  <!-- ══ Loading overlay ══════════════════════════════════════════════════════ -->
+  @if (isLoading()) {
+    <div class="dash-loading-bar">
+      <div class="dash-loading-bar-inner"></div>
+    </div>
+  }
+
+  <!-- ══ KPI Grid ══════════════════════════════════════════════════════════════ -->
+  <div class="kpi-grid">
+
+    <!-- Déclarations totales -->
+    <div class="kpi-card">
+      <div class="kpi-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+          <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+          <polyline points="10 9 9 9 8 9"/>
+        </svg>
+      </div>
+      <div class="kpi-label">Déclarations reçues</div>
+      <div class="kpi-value">{{ totalDeclarations() }}</div>
+      <div class="kpi-change up">↑ {{ declarationsDuMois() }} ce mois · {{ declarationsDeLaSemaine() }} cette sem.</div>
+    </div>
+
+    <!-- Actes émis -->
+    <div class="kpi-card green">
+      <div class="kpi-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+      </div>
+      <div class="kpi-label">Actes de naissance émis</div>
+      <div class="kpi-value">{{ totalActes() }}</div>
+      <div class="kpi-change up">↑ Taux {{ tauxConversion() }}% · {{ actesDuMois() }} ce mois</div>
+    </div>
+
+    <!-- En attente -->
+    <div class="kpi-card gold">
+      <div class="kpi-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+        </svg>
+      </div>
+      <div class="kpi-label">Déclarations en attente</div>
+      <div class="kpi-value">{{ declarationsEnAttente() }}</div>
+      <div class="kpi-change down">↑ Non encore converties en acte</div>
+    </div>
+
+    <!-- Taux de conversion -->
+    <div class="kpi-card accent">
+      <div class="kpi-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/>
+          <line x1="6" y1="20" x2="6" y2="14"/>
+        </svg>
+      </div>
+      <div class="kpi-label">Actes émis cette semaine</div>
+      <div class="kpi-value">{{ actesDeLaSemaine() }}</div>
+      <div class="kpi-change" [class.up]="actesDeLaSemaine() > 0" [class.down]="actesDeLaSemaine() === 0">
+        {{ actesDeLaSemaine() > 0 ? '↑ Activité en cours' : '— Aucun acte cette semaine' }}
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ Ligne 1 : Graphiques ════════════════════════════════════════════════ -->
+  <div class="row g-3 mb-4">
+
+    <!-- Tendance sur 6 mois (line chart) -->
+    <div class="col-lg-8">
+      <div class="card-panel">
+        <div class="card-panel-header">
+          <div>
+            <div class="card-panel-title">Tendance — 6 derniers mois</div>
+            <div style="font-size:12px;color:var(--text-muted);margin-top:.2rem;">Déclarations reçues vs actes de naissance émis</div>
+          </div>
+          <div class="dash-legend-pills">
+            <span class="dash-legend-pill blue">Déclarations</span>
+            <span class="dash-legend-pill green">Actes émis</span>
+          </div>
         </div>
-        <div style="font-size:12.5px;color:var(--text-muted);background:var(--surface);border:1px solid var(--border);padding:.5rem 1rem;border-radius:var(--radius-sm);">
-          📅 Mis à jour : 12 mai 2025
+        <div class="card-panel-body" style="padding:1.25rem 1.5rem;">
+          <div style="height:230px;position:relative;">
+            <canvas #chartTrend></canvas>
+          </div>
         </div>
       </div>
+    </div>
 
-      <!-- KPIs -->
-      <div class="kpi-grid">
-        <div class="kpi-card">
-          <div class="kpi-icon">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-          </div>
-          <div class="kpi-label">Déclarations reçues</div>
-          <div class="kpi-value">148</div>
-          <div class="kpi-change up">↑ +18 ce mois</div>
+    <!-- Donut statut -->
+    <div class="col-lg-4">
+      <div class="card-panel h-100">
+        <div class="card-panel-header">
+          <div class="card-panel-title">Statut des déclarations</div>
         </div>
-        <div class="kpi-card green">
-          <div class="kpi-icon">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+        <div class="card-panel-body" style="display:flex;flex-direction:column;align-items:center;gap:1.25rem;">
+          <div style="height:180px;width:100%;position:relative;">
+            <canvas #chartDonut></canvas>
           </div>
-          <div class="kpi-label">Actes émis</div>
-          <div class="kpi-value">131</div>
-          <div class="kpi-change up">↑ Taux 88%</div>
-        </div>
-        <div class="kpi-card gold">
-          <div class="kpi-icon">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-          </div>
-          <div class="kpi-label">En cours de traitement</div>
-          <div class="kpi-value">17</div>
-          <div class="kpi-change down">↑ 3 urgentes</div>
-        </div>
-        <div class="kpi-card accent">
-          <div class="kpi-icon">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-          </div>
-          <div class="kpi-label">Rejetés / incomplets</div>
-          <div class="kpi-value">4</div>
-          <div class="kpi-change down">↑ À relancer</div>
-        </div>
-      </div>
-
-      <div class="row g-3">
-        <!-- Activité récente -->
-        <div class="col-lg-7">
-          <div class="card-panel">
-            <div class="card-panel-header">
-              <div class="card-panel-title">Activité récente</div>
-              <button class="btn-ghost" style="font-size:12px;">Voir tout</button>
+          <!-- Statistiques centrales -->
+          <div class="dash-donut-stats">
+            <div class="dash-donut-stat">
+              <span class="dash-donut-dot green"></span>
+              <span style="font-size:12px;color:var(--text-muted);">Actes émis</span>
+              <span style="font-size:13px;font-weight:700;color:#15803d;">{{ totalActes() }}</span>
             </div>
-            <div class="card-panel-body" style="padding:0;">
-              <table class="table-custom">
-                <thead>
-                  <tr>
-                    <th>Référence</th>
-                    <th>Enfant</th>
-                    <th>Date</th>
-                    <th>Statut</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td style="font-weight:700;color:var(--primary);font-family:var(--font-display);font-size:12.5px;">DEC-2024-001</td>
-                    <td style="font-weight:600;font-size:13px;">Emma Fontaine</td>
-                    <td class="td-muted">14 Jan. 2025</td>
-                    <td><span class="badge-status approved">Émis</span></td>
-                  </tr>
-                  <tr>
-                    <td style="font-weight:700;color:var(--primary);font-family:var(--font-display);font-size:12.5px;">DEC-2024-002</td>
-                    <td style="font-weight:600;font-size:13px;">Liam Mbarga</td>
-                    <td class="td-muted">20 Jan. 2025</td>
-                    <td><span class="badge-status pending">En attente</span></td>
-                  </tr>
-                  <tr>
-                    <td style="font-weight:700;color:var(--primary);font-family:var(--font-display);font-size:12.5px;">DEC-2024-003</td>
-                    <td style="font-weight:600;font-size:13px;">Chloé Ndiaye</td>
-                    <td class="td-muted">03 Fév. 2025</td>
-                    <td><span class="badge-status rejected">Incomplet</span></td>
-                  </tr>
-                  <tr>
-                    <td style="font-weight:700;color:var(--primary);font-family:var(--font-display);font-size:12.5px;">DEC-2024-004</td>
-                    <td style="font-weight:600;font-size:13px;">Noah Essomba</td>
-                    <td class="td-muted">10 Fév. 2025</td>
-                    <td><span class="badge-status review">En révision</span></td>
-                  </tr>
-                </tbody>
-              </table>
+            <div class="dash-donut-stat">
+              <span class="dash-donut-dot gold"></span>
+              <span style="font-size:12px;color:var(--text-muted);">En attente</span>
+              <span style="font-size:13px;font-weight:700;color:#b45309;">{{ declarationsEnAttente() }}</span>
             </div>
-          </div>
-        </div>
-
-        <!-- Résumé rapide -->
-        <div class="col-lg-5">
-          <div class="card-panel h-100">
-            <div class="card-panel-header">
-              <div class="card-panel-title">Répartition par sexe</div>
-            </div>
-            <div class="card-panel-body">
-              <!-- Barre simple -->
-              <div style="margin-bottom:1.5rem;">
-                <div class="d-flex justify-content-between mb-1">
-                  <span style="font-size:12.5px;font-weight:600;color:#3730a3;">♀ Féminin</span>
-                  <span style="font-size:12.5px;font-weight:700;">72 (49%)</span>
-                </div>
-                <div style="height:8px;background:var(--bg);border-radius:4px;overflow:hidden;">
-                  <div style="height:100%;width:49%;background:#818cf8;border-radius:4px;"></div>
-                </div>
-              </div>
-              <div style="margin-bottom:1.5rem;">
-                <div class="d-flex justify-content-between mb-1">
-                  <span style="font-size:12.5px;font-weight:600;color:#1d4ed8;">♂ Masculin</span>
-                  <span style="font-size:12.5px;font-weight:700;">76 (51%)</span>
-                </div>
-                <div style="height:8px;background:var(--bg);border-radius:4px;overflow:hidden;">
-                  <div style="height:100%;width:51%;background:var(--primary);border-radius:4px;"></div>
-                </div>
-              </div>
-
-              <div style="border-top:1px solid var(--border-light);padding-top:1rem;margin-top:.5rem;">
-                <div class="d-flex justify-content-between mb-2">
-                  <span style="font-size:12px;color:var(--text-muted);">Délai moyen de traitement</span>
-                  <span style="font-size:13px;font-weight:700;color:var(--primary);">2,4 jours</span>
-                </div>
-                <div class="d-flex justify-content-between mb-2">
-                  <span style="font-size:12px;color:var(--text-muted);">Actes en retard</span>
-                  <span style="font-size:13px;font-weight:700;color:var(--accent);">3</span>
-                </div>
-                <div class="d-flex justify-content-between">
-                  <span style="font-size:12px;color:var(--text-muted);">Taux de validation</span>
-                  <span style="font-size:13px;font-weight:700;color:#15803d;">88%</span>
-                </div>
-              </div>
+            <div class="dash-donut-stat">
+              <span class="dash-donut-dot blue"></span>
+              <span style="font-size:12px;color:var(--text-muted);">Total</span>
+              <span style="font-size:13px;font-weight:700;color:var(--primary);">{{ totalDeclarations() }}</span>
             </div>
           </div>
         </div>
       </div>
     </div>
+  </div>
+
+  <!-- ══ Ligne 2 : Comparaison mensuelle + Répartition sexe ══════════════════ -->
+  <div class="row g-3 mb-4">
+
+    <!-- Bar chart comparaison -->
+    <div class="col-lg-7">
+      <div class="card-panel">
+        <div class="card-panel-header">
+          <div class="card-panel-title">Comparaison mensuelle</div>
+          <div style="font-size:12px;color:var(--text-muted);">Déclarations vs actes — vue histogramme</div>
+        </div>
+        <div class="card-panel-body" style="padding:1.25rem 1.5rem;">
+          <div style="height:210px;position:relative;">
+            <canvas #chartComparaison></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Répartition sexe + métriques -->
+    <div class="col-lg-5">
+      <div class="card-panel h-100">
+        <div class="card-panel-header">
+          <div class="card-panel-title">Répartition & Indicateurs</div>
+        </div>
+        <div class="card-panel-body">
+
+          <!-- Sexe masculin -->
+          <div style="margin-bottom:1.25rem;">
+            <div class="d-flex justify-content-between mb-1">
+              <span style="font-size:12.5px;font-weight:600;color:#1d4ed8;">♂ Masculin</span>
+              <span style="font-size:12.5px;font-weight:700;">{{ repartitionSexe().masculin }} ({{ repartitionSexe().pctM }}%)</span>
+            </div>
+            <div class="dash-progress-bar">
+              <div class="dash-progress-fill blue" [style.width.%]="repartitionSexe().pctM"></div>
+            </div>
+          </div>
+
+          <!-- Sexe féminin -->
+          <div style="margin-bottom:1.5rem;">
+            <div class="d-flex justify-content-between mb-1">
+              <span style="font-size:12.5px;font-weight:600;color:#3730a3;">♀ Féminin</span>
+              <span style="font-size:12.5px;font-weight:700;">{{ repartitionSexe().feminin }} ({{ repartitionSexe().pctF }}%)</span>
+            </div>
+            <div class="dash-progress-bar">
+              <div class="dash-progress-fill purple" [style.width.%]="repartitionSexe().pctF"></div>
+            </div>
+          </div>
+
+          <!-- Métriques rapides -->
+          <div class="dash-metrics-list">
+            <div class="dash-metric-row">
+              <span class="dash-metric-label">Taux de conversion global</span>
+              <span class="dash-metric-value" style="color:#15803d;">{{ tauxConversion() }}%</span>
+            </div>
+            <div class="dash-metric-row">
+              <span class="dash-metric-label">Déclarations ce mois</span>
+              <span class="dash-metric-value" style="color:var(--primary);">{{ declarationsDuMois() }}</span>
+            </div>
+            <div class="dash-metric-row">
+              <span class="dash-metric-label">Actes émis ce mois</span>
+              <span class="dash-metric-value" style="color:#15803d;">{{ actesDuMois() }}</span>
+            </div>
+            <div class="dash-metric-row">
+              <span class="dash-metric-label">Activité cette semaine</span>
+              <span class="dash-metric-value" style="color:var(--gold);">{{ declarationsDeLaSemaine() }} décl. · {{ actesDeLaSemaine() }} actes</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ Ligne 3 : Activité récente ══════════════════════════════════════════ -->
+  <div class="card-panel">
+    <div class="card-panel-header">
+      <div class="card-panel-title">Activité récente — Dernières déclarations</div>
+      <div style="font-size:12px;color:var(--text-muted);">5 enregistrements les plus récents</div>
+    </div>
+    <div class="card-panel-body" style="padding:0;">
+
+      @if (activiteRecente().length === 0 && !isLoading()) {
+        <div class="table-empty">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color:var(--text-light)">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+          </svg>
+          <p>Aucune déclaration enregistrée.</p>
+        </div>
+      }
+
+      @if (activiteRecente().length > 0) {
+        <div class="table-responsive">
+          <table class="table-custom">
+            <thead>
+              <tr>
+                <th>Référence</th>
+                <th>Enfant</th>
+                <th>Date de naissance</th>
+                <th>Date déclaration</th>
+                <th>Mère</th>
+                <th>Statut acte</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (item of activiteRecente(); track item.id) {
+                <tr>
+                  <td>
+                    <span class="decl-ref">{{ item.id ?? '—' }}</span>
+                  </td>
+                  <td style="font-weight:600;font-size:13px;">{{ nomEnfant(item) }}</td>
+                  <td class="td-muted">{{ formatDate(item.enfant?.dateNaissance) }}</td>
+                  <td class="td-muted">{{ formatDate(item.date) }}</td>
+                  <td style="font-size:13px;">
+                    {{ item.mere?.prenom ?? '' }} {{ item.mere?.nom ?? '' }}
+                  </td>
+                  <td>
+                    @if (item.hasActe) {
+                      <span class="badge-status approved">Acte émis</span>
+                    } @else {
+                      <span class="badge-status pending">En attente</span>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+  </div>
+
+</div>
