@@ -1,6 +1,6 @@
-//const baseUrl = 'http://localhost:8080/eDeclare/api';
+const baseUrl = 'http://localhost:8080/eDeclare/api';
 
-const baseUrl = 'https://edeclarebackend.onrender.com/eDeclare/api'; 
+//const baseUrl = 'https://edeclarebackend.onrender.com/eDeclare/api'; 
 
 const authBaseUrl = `${baseUrl}/auth`;
 const etablissementBaseUrl = `${baseUrl}/domaine`;
